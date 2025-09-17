@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Workflow Test - RoadRescue360</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-button {
+            background: #0056b3;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+            font-size: 16px;
+            display: inline-block;
+            text-decoration: none;
+        }
+        .test-button:hover {
+            background: #004494;
+        }
+        .test-button.secondary {
+            background: #28a745;
+        }
+        .test-button.secondary:hover {
+            background: #218838;
+        }
+        .test-button.danger {
+            background: #dc3545;
+        }
+        .test-button.danger:hover {
+            background: #c82333;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+        }
+        .error {
+            background: #ffebee;
+            border: 1px solid #f44336;
+            color: #c62828;
+        }
+        .warning {
+            background: #fff3e0;
+            border: 1px solid #ff9800;
+            color: #e65100;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border: 1px solid #e9ecef;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .workflow-step {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #0056b3;
+        }
+        .workflow-step.completed {
+            border-left-color: #28a745;
+            background: #e8f5e8;
+        }
+        .workflow-step.error {
+            border-left-color: #dc3545;
+            background: #ffebee;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔧 Complete Workflow Test - RoadRescue360</h1>
+        <p>This page tests the complete booking workflow from main page to track page.</p>
+        
+        <div class="status" id="status">
+            Ready to test the complete workflow. Click the buttons below to test each step.
+        </div>
+        
+        <h3>Test Workflow Steps:</h3>
+        <div class="workflow-step" id="step1">
+            <strong>Step 1:</strong> Set test booking data for different services
+        </div>
+        <div class="workflow-step" id="step2">
+            <strong>Step 2:</strong> Verify data is stored in localStorage
+        </div>
+        <div class="workflow-step" id="step3">
+            <strong>Step 3:</strong> Navigate to track page and verify data loads correctly
+        </div>
+        
+        <h3>Test Services:</h3>
+        <button class="test-button" onclick="testService('battery')">🔋 Test Battery Jump Start</button>
+        <button class="test-button" onclick="testService('fuel')">⛽ Test Fuel Delivery</button>
+        <button class="test-button" onclick="testService('lockout')">🔑 Test Lockout Service</button>
+        <button class="test-button" onclick="testService('towing')">🚛 Test Towing Service</button>
+        <button class="test-button" onclick="testService('tire')">🛞 Test Flat Tire Change</button>
+        <button class="test-button" onclick="testService('mechanic')">🔧 Test Mobile Mechanic</button>
+        
+        <h3>Workflow Actions:</h3>
+        <button class="test-button secondary" onclick="checkBookingData()">📋 Check Current Booking Data</button>
+        <button class="test-button secondary" onclick="goToTrackPage()">📱 Go to Track Page</button>
+        <button class="test-button danger" onclick="clearBookingData()">🗑️ Clear Booking Data</button>
+        
+        <h3>Current Booking Data:</h3>
+        <pre id="currentData">No booking data found.</pre>
+        
+        <h3>Test Results:</h3>
+        <pre id="testResults">No tests run yet.</pre>
+    </div>
+
+    <script>
+        // Service data templates
+        const serviceTemplates = {
+            'battery': {
+                service: 'battery',
+                serviceTitle: 'Battery Jump Start',
+                servicePricing: 'Starting at ₹699',
+                serviceDescription: 'Professional jump start service to get your vehicle running again.',
+                serviceIcon: '<i class="fas fa-car-battery"></i>',
+                name: 'John Doe',
+                phone: '+91 9876543210',
+                location: 'Sector 62, Noida, Uttar Pradesh 201301, India',
+                vehicleInfo: 'Honda City - White - DL-01-AB-1234',
+                time: 'ASAP',
+                paymentMethod: 'Credit Card',
+                notes: 'Vehicle is parked in basement parking B2, slot #45',
+                timestamp: new Date().toISOString(),
+                trackingId: 'RR-' + Math.floor(Math.random() * 1000000)
+            },
+            'fuel': {
+                service: 'fuel',
+                serviceTitle: 'Fuel Delivery',
+                servicePricing: 'Starting at ₹999',
+                serviceDescription: 'Emergency fuel delivery service to get you back on the road.',
+                serviceIcon: '<i class="fas fa-gas-pump"></i>',
+                name: 'Jane Smith',
+                phone: '+91 9876543211',
+                location: 'Sector 63, Noida, Uttar Pradesh 201301, India',
+                vehicleInfo: 'Maruti Swift - Red - DL-02-CD-5678',
+                time: 'ASAP',
+                paymentMethod: 'Cash on Delivery',
+                notes: 'Vehicle is on the side of the road near the metro station',
+                timestamp: new Date().toISOString(),
+                trackingId: 'RR-' + Math.floor(Math.random() * 1000000)
+            },
+            'lockout': {
+                service: 'lockout',
+                serviceTitle: 'Lockout Service',
+                servicePricing: 'Starting at ₹799',
+                serviceDescription: 'Professional lockout service to safely unlock your vehicle.',
+                serviceIcon: '<i class="fas fa-key"></i>',
+                name: 'Mike Johnson',
+                phone: '+91 9876543212',
+                location: 'Sector 64, Noida, Uttar Pradesh 201301, India',
+                vehicleInfo: 'Toyota Innova - Silver - DL-03-EF-9012',
+                time: 'ASAP',
+                paymentMethod: 'UPI',
+                notes: 'Keys locked inside car, vehicle is in parking lot',
+                timestamp: new Date().toISOString(),
+                trackingId: 'RR-' + Math.floor(Math.random() * 1000000)
+            },
+            'towing': {
+                service: 'towing',
+                serviceTitle: 'Towing Service',
+                servicePricing: 'Starting at ₹1699',
+                serviceDescription: 'Professional towing service to transport your vehicle safely.',
+                serviceIcon: '<i class="fas fa-truck-pickup"></i>',
+                name: 'Sarah Wilson',
+                phone: '+91 9876543213',
+                location: 'Sector 65, Noida, Uttar Pradesh 201301, India',
+                vehicleInfo: 'Hyundai Creta - Blue - DL-04-GH-3456',
+                time: 'ASAP',
+                paymentMethod: 'Credit Card',
+                notes: 'Vehicle broke down on highway, needs towing to nearest service center',
+                timestamp: new Date().toISOString(),
+                trackingId: 'RR-' + Math.floor(Math.random() * 1000000)
+            },
+            'tire': {
+                service: 'tire',
+                serviceTitle: 'Flat Tire Change',
+                servicePricing: 'Starting at ₹899',
+                serviceDescription: 'Professional flat tire change service with spare tire installation.',
+                serviceIcon: '<i class="fas fa-tools"></i>',
+                name: 'David Brown',
+                phone: '+91 9876543214',
+                location: 'Sector 66, Noida, Uttar Pradesh 201301, India',
+                vehicleInfo: 'Ford EcoSport - Black - DL-05-IJ-7890',
+                time: 'ASAP',
+                paymentMethod: 'Cash on Delivery',
+                notes: 'Front left tire is flat, spare tire is available',
+                timestamp: new Date().toISOString(),
+                trackingId: 'RR-' + Math.floor(Math.random() * 1000000)
+            },
+            'mechanic': {
+                service: 'mechanic',
+                serviceTitle: 'Mobile Mechanic',
+                servicePricing: 'Starting at ₹1199',
+                serviceDescription: 'Professional mobile mechanic service for on-site repairs.',
+                serviceIcon: '<i class="fas fa-wrench"></i>',
+                name: 'Lisa Davis',
+                phone: '+91 9876543215',
+                location: 'Sector 67, Noida, Uttar Pradesh 201301, India',
+                vehicleInfo: 'Nissan Magnite - Orange - DL-06-KL-1234',
+                time: 'ASAP',
+                paymentMethod: 'Credit Card',
+                notes: 'Engine making strange noise, needs diagnostic check',
+                timestamp: new Date().toISOString(),
+                trackingId: 'RR-' + Math.floor(Math.random() * 1000000)
+            }
+        };
+        
+        function testService(serviceType) {
+            const serviceData = serviceTemplates[serviceType];
+            
+            try {
+                localStorage.setItem('roadRescueBooking', JSON.stringify(serviceData));
+                
+                document.getElementById('status').innerHTML = `
+                    ✅ <strong>${serviceData.serviceTitle}</strong> booking data has been set!<br>
+                    Tracking ID: <strong>${serviceData.trackingId}</strong><br>
+                    Service: <strong>${serviceData.serviceTitle}</strong><br>
+                    Location: <strong>${serviceData.location}</strong>
+                `;
+                
+                document.getElementById('step1').classList.add('completed');
+                document.getElementById('step1').innerHTML = '<strong>Step 1:</strong> ✅ Test booking data set for ' + serviceData.serviceTitle;
+                
+                checkBookingData();
+                
+                // Update test results
+                document.getElementById('testResults').textContent = `
+Test Service: ${serviceData.serviceTitle}
+Tracking ID: ${serviceData.trackingId}
+Service Type: ${serviceData.service}
+Location: ${serviceData.location}
+Vehicle: ${serviceData.vehicleInfo}
+Payment Method: ${serviceData.paymentMethod}
+Notes: ${serviceData.notes}
+Timestamp: ${serviceData.timestamp}
+
+✅ Data successfully stored in localStorage
+✅ Ready to test track page
+                `;
+                
+            } catch (error) {
+                document.getElementById('status').innerHTML = `
+                    ❌ <strong>Error setting booking data:</strong><br>
+                    ${error.message}
+                `;
+                document.getElementById('status').className = 'status error';
+            }
+        }
+        
+        function checkBookingData() {
+            try {
+                const bookingData = localStorage.getItem('roadRescueBooking');
+                
+                if (bookingData) {
+                    const data = JSON.parse(bookingData);
+                    document.getElementById('currentData').textContent = JSON.stringify(data, null, 2);
+                    
+                    document.getElementById('step2').classList.add('completed');
+                    document.getElementById('step2').innerHTML = '<strong>Step 2:</strong> ✅ Booking data verified in localStorage';
+                    
+                    // Update test results
+                    const currentResults = document.getElementById('testResults').textContent;
+                    document.getElementById('testResults').textContent = currentResults + '\n\n✅ Step 2: Booking data verified in localStorage';
+                    
+                } else {
+                    document.getElementById('currentData').textContent = 'No booking data found in localStorage.';
+                    document.getElementById('step2').classList.add('error');
+                    document.getElementById('step2').innerHTML = '<strong>Step 2:</strong> ❌ No booking data found in localStorage';
+                }
+            } catch (error) {
+                document.getElementById('currentData').textContent = `Error reading booking data: ${error.message}`;
+                document.getElementById('step2').classList.add('error');
+                document.getElementById('step2').innerHTML = '<strong>Step 2:</strong> ❌ Error reading booking data';
+            }
+        }
+        
+        function goToTrackPage() {
+            const bookingData = localStorage.getItem('roadRescueBooking');
+            
+            if (bookingData) {
+                document.getElementById('step3').classList.add('completed');
+                document.getElementById('step3').innerHTML = '<strong>Step 3:</strong> ✅ Navigating to track page with booking data';
+                
+                // Update test results
+                const currentResults = document.getElementById('testResults').textContent;
+                document.getElementById('testResults').textContent = currentResults + '\n\n✅ Step 3: Navigating to track page';
+                
+                // Navigate to track page
+                window.location.href = 'track-service.html';
+            } else {
+                document.getElementById('step3').classList.add('error');
+                document.getElementById('step3').innerHTML = '<strong>Step 3:</strong> ❌ No booking data found. Please set test data first.';
+                
+                document.getElementById('status').innerHTML = `
+                    ⚠️ <strong>No booking data found!</strong><br>
+                    Please click one of the service test buttons first to set booking data.
+                `;
+                document.getElementById('status').className = 'status warning';
+            }
+        }
+        
+        function clearBookingData() {
+            localStorage.removeItem('roadRescueBooking');
+            document.getElementById('status').innerHTML = '🗑️ Booking data has been cleared.';
+            document.getElementById('currentData').textContent = 'No booking data found.';
+            document.getElementById('testResults').textContent = 'Booking data cleared.';
+            
+            // Reset workflow steps
+            document.getElementById('step1').classList.remove('completed', 'error');
+            document.getElementById('step1').innerHTML = '<strong>Step 1:</strong> Set test booking data for different services';
+            document.getElementById('step2').classList.remove('completed', 'error');
+            document.getElementById('step2').innerHTML = '<strong>Step 2:</strong> Verify data is stored in localStorage';
+            document.getElementById('step3').classList.remove('completed', 'error');
+            document.getElementById('step3').innerHTML = '<strong>Step 3:</strong> Navigate to track page and verify data loads correctly';
+        }
+        
+        // Check booking data on page load
+        checkBookingData();
+    </script>
+</body>
+</html>
+
+
+

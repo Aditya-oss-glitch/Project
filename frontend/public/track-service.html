@@ -1,0 +1,1523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Track your RoadRescue360 service in real-time. View your technician's location, ETA, and service status updates.">
+    <title>Track My Service | RoadRescue360</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Racing+Sans+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Tracking page specific styles */
+        .tracking-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .track-form-section {
+            margin-bottom: 30px;
+        }
+
+        .track-form {
+            background-color: var(--white);
+            padding: 30px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--card-shadow);
+            margin-bottom: 20px;
+            height: fit-content;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .track-form h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .track-form h2 i {
+            margin-right: 10px;
+            color: var(--secondary);
+        }
+
+        .tracking-results {
+            display: none;
+        }
+
+        .service-status {
+            background-color: var(--white);
+            padding: 30px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--card-shadow);
+            margin-bottom: 30px;
+            height: fit-content;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .service-status h3 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .service-status h3 i {
+            margin-right: 10px;
+            color: var(--secondary);
+        }
+
+        .timeline {
+            position: relative;
+            margin: 30px 0;
+            padding-left: 45px;
+            flex: 1;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background-color: #e2e8f0;
+            z-index: 1;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+        }
+
+        .timeline-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .timeline-marker {
+            position: absolute;
+            left: -45px;
+            top: 0;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: var(--light);
+            border: 3px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            color: var(--secondary);
+            z-index: 2;
+            transition: var(--transition-smooth);
+        }
+
+        .timeline-content {
+            padding-left: 15px;
+        }
+
+        .timeline-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--secondary);
+            transition: var(--transition-smooth);
+        }
+
+        .timeline-time {
+            font-size: 0.85rem;
+            color: var(--secondary);
+            opacity: 0.7;
+        }
+
+        .timeline-item.active .timeline-marker {
+            background-color: var(--primary);
+            border-color: rgba(0, 86, 179, 0.3);
+            color: white;
+        }
+
+        .timeline-item.active .timeline-title {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .timeline-item.completed .timeline-marker {
+            background-color: var(--success);
+            border-color: rgba(40, 167, 69, 0.3);
+            color: white;
+        }
+
+        .timeline-item.completed .timeline-title {
+            color: var(--success);
+        }
+
+        .service-technician {
+            background-color: var(--white);
+            padding: 30px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--card-shadow);
+            margin-bottom: 30px;
+            height: fit-content;
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .service-technician h3 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .service-technician h3 i {
+            margin-right: 10px;
+            color: var(--secondary);
+        }
+
+        .technician-profile {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            flex: 1;
+        }
+
+        .technician-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 20px;
+            border: 3px solid var(--primary-light);
+        }
+
+        .technician-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .technician-info h3 {
+            margin-bottom: 5px;
+            font-size: 1.2rem;
+        }
+
+        .technician-badge {
+            display: inline-block;
+            background-color: rgba(0, 86, 179, 0.1);
+            color: var(--primary);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .rating {
+            color: var(--warning);
+            margin-top: 5px;
+        }
+
+        .rating .fas {
+            margin-right: 2px;
+        }
+
+        .vehicle-info {
+            padding: 15px;
+            background-color: var(--light);
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
+        .vehicle-info p {
+            margin: 5px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .vehicle-info i {
+            width: 20px;
+            margin-right: 10px;
+            color: var(--primary);
+        }
+
+        .eta {
+            display: flex;
+            align-items: center;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .eta i {
+            margin-right: 10px;
+            font-size: 1.5rem;
+        }
+
+        .map-section {
+            grid-column: span 2;
+        }
+
+        .map-section h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .map-section h2 i {
+            margin-right: 10px;
+            color: var(--secondary);
+        }
+
+        #map {
+            height: 400px;
+            border-radius: var(--border-radius-lg);
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .map-placeholder {
+            text-align: center;
+            padding: 40px;
+            color: var(--secondary);
+        }
+
+        .map-placeholder h4 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .map-placeholder .map-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            opacity: 0.7;
+        }
+
+        .map-placeholder p {
+            margin: 10px 0;
+            font-size: 0.95rem;
+        }
+
+        .map-placeholder .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+
+        .map-placeholder .status-indicator i {
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .service-details {
+            background-color: var(--white);
+            padding: 30px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--card-shadow);
+            margin-bottom: 30px;
+        }
+
+        .service-details-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .service-details-header h3 {
+            margin: 0;
+            color: var(--primary);
+            font-size: 1.4rem;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+        }
+
+        .status-badge i {
+            margin-right: 8px;
+            font-size: 0.8rem;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .detail-card {
+            display: flex;
+            align-items: center;
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .detail-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        .detail-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary);
+        }
+
+        .detail-card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .detail-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), #3b82f6);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: white;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 12px rgba(0, 86, 179, 0.3);
+        }
+
+        .detail-content {
+            flex: 1;
+        }
+
+        .detail-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--secondary);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .detail-value {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--dark);
+            line-height: 1.4;
+        }
+
+        .support-section {
+            background-color: var(--white);
+            padding: 30px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--card-shadow);
+            text-align: center;
+            height: fit-content;
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .support-section h3 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .support-section h3 i {
+            margin-right: 10px;
+            color: var(--secondary);
+        }
+
+        .support-options {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+            flex: 1;
+            align-items: center;
+        }
+
+        .support-option {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: var(--light);
+            border-radius: var(--border-radius);
+            transition: var(--transition-smooth);
+        }
+
+        .support-option:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--card-shadow);
+        }
+
+        .support-icon {
+            width: 50px;
+            height: 50px;
+            background-color: rgba(0, 86, 179, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+        }
+
+        .support-option h4 {
+            margin-bottom: 5px;
+            font-size: 1rem;
+        }
+
+        .support-option p {
+            font-size: 0.9rem;
+            color: var(--secondary);
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            font-weight: 600;
+            text-align: center;
+            transition: var(--transition-smooth);
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), #3b82f6);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 86, 179, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 86, 179, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        /* Service Cost Section */
+        .service-cost {
+            background-color: var(--white);
+            padding: 30px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--card-shadow);
+            margin-bottom: 30px;
+            height: fit-content;
+            min-height: 500px;
+            display: flex;
+                flex-direction: column;
+            }
+        
+        .service-cost h3 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .service-cost h3 i {
+            margin-right: 10px;
+            color: var(--secondary);
+        }
+        
+        .cost-details {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            flex: 1;
+            justify-content: center;
+        }
+        
+        .cost-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .cost-item:last-child {
+            border-bottom: none;
+        }
+        
+        .cost-item.total {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--primary);
+            border-top: 2px solid var(--primary);
+            padding-top: 15px;
+            margin-top: 10px;
+        }
+        
+        .cost-label {
+            color: var(--secondary);
+        }
+        
+        .cost-value {
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .cost-item.total .cost-value {
+            color: var(--primary);
+        }
+
+        .tracking-number {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 20px 0;
+            color: var(--dark);
+            text-align: center;
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .tracking-number i {
+            color: var(--primary);
+            font-size: 1.3rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition-smooth);
+            background-color: var(--white);
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.1);
+        }
+
+        @media (max-width: 992px) {
+            .tracking-container {
+                grid-template-columns: 1fr;
+            }
+
+            .map-section {
+                grid-column: span 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .support-options {
+                flex-direction: column;
+            }
+            
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero-content p {
+                font-size: 1rem;
+            }
+            
+            .tracking-container {
+            gap: 20px;
+            }
+            
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Additional polish */
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary), #3b82f6);
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+            margin-bottom: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .hero-content {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .hero-content h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .hero-content p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .main-content {
+            padding-bottom: 50px;
+        }
+
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <h1><i class="fas fa-car-crash"></i> <span class="logo-text">ROAD<span class="logo-highlight">RESCUE</span><span class="logo-number">360</span></span></h1>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="#services">Services</a>
+                <a href="schedule-service.html">Schedule</a>
+                <a href="track-service.html" class="active">Track</a>
+                <a href="ratings.html">Ratings</a>
+                <a href="faq.html">FAQ</a>
+                <a href="about.html">About Us</a>
+                <a href="contact.html">Contact</a>
+            </div>
+            <div class="theme-toggle" id="theme-toggle">
+                <i class="fas fa-sun"></i>
+                <div class="toggle-track">
+                    <div class="toggle-thumb"></div>
+                </div>
+                <i class="fas fa-moon"></i>
+            </div>
+            <div class="mobile-menu" id="mobile-menu">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Hero Section -->
+            <section class="hero-section">
+                <div class="hero-content">
+                    <h1>Track Your Service</h1>
+                    <p>Monitor your roadside assistance request in real-time</p>
+        </div>
+    </section>
+
+            <!-- Technician and Service Cost Section -->
+            <div class="tracking-container">
+                <!-- Service Technician -->
+                <div class="service-technician">
+                    <h3><i class="fas fa-user-tie"></i> Your Technician</h3>
+                    <div class="technician-profile">
+                        <div class="technician-avatar">
+                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face" alt="Technician">
+                        </div>
+                        <div class="technician-info">
+                            <h3>Rahul Sharma</h3>
+                            <div class="technician-badge">Battery Specialist</div>
+                            <div class="rating">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <span>4.8/5 (243 reviews)</span>
+                    </div>
+                        </div>
+                    </div>
+                    <div class="vehicle-info">
+                        <p><i class="fas fa-truck"></i> <strong>Vehicle:</strong> Tata Ace - White</p>
+                        <p><i class="fas fa-id-card"></i> <strong>License:</strong> UP-16-AB-1234</p>
+                        <p><i class="fas fa-phone"></i> <strong>Contact:</strong> +91 98765 43210</p>
+                    </div>
+                    <div class="eta">
+                        <i class="fas fa-clock"></i> Estimated Arrival: 12 minutes
+                    </div>
+            </div>
+
+                <!-- Service Cost -->
+                <div class="service-cost">
+                    <h3><i class="fas fa-rupee-sign"></i> Service Cost</h3>
+                    <div class="cost-details">
+                        <div class="cost-item">
+                            <span class="cost-label" id="service-name">Battery Jump Start Service</span>
+                            <span class="cost-value" id="service-price">₹699</span>
+                        </div>
+                        <div class="cost-item">
+                            <span class="cost-label">Distance Fee</span>
+                            <span class="cost-value">₹200</span>
+                        </div>
+                        <div class="cost-item">
+                            <span class="cost-label">Service Tax (18%)</span>
+                            <span class="cost-value">₹162</span>
+                        </div>
+                        <div class="cost-item total">
+                            <span class="cost-label">Total Amount</span>
+                            <span class="cost-value">₹1,061</span>
+                        </div>
+                    </div>
+                </div>
+                </div>
+                
+
+            <!-- Service Status and Details -->
+                <div class="tracking-container">
+                    <!-- Service Status -->
+                    <div class="service-status">
+                        <h3><i class="fas fa-tasks"></i> Service Status</h3>
+                        <div class="timeline">
+                            <div class="timeline-item completed">
+                                <div class="timeline-marker">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">Request Received</div>
+                                    <div class="timeline-time">Today, 10:15 AM</div>
+                                </div>
+                            </div>
+                            <div class="timeline-item completed">
+                                <div class="timeline-marker">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">Technician Assigned</div>
+                                    <div class="timeline-time">Today, 10:18 AM</div>
+                                </div>
+                            </div>
+                            <div class="timeline-item active">
+                                <div class="timeline-marker">
+                                <i class="fas fa-car"></i>
+                                </div>
+                                <div class="timeline-content">
+                                <div class="timeline-title">Technician En Route</div>
+                                    <div class="timeline-time">Today, 10:20 AM</div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-marker">
+                                    <i class="fas fa-tools"></i>
+                                </div>
+                                <div class="timeline-content">
+                                <div class="timeline-title">Service In Progress</div>
+                                <div class="timeline-time">Estimated: 10:45 AM</div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-marker">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <div class="timeline-content">
+                                <div class="timeline-title">Service Completed</div>
+                                <div class="timeline-time">Estimated: 11:00 AM</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                <!-- Service Details -->
+                <div class="service-details">
+                    <div class="service-details-header">
+                        <h3><i class="fas fa-info-circle"></i> Service Details</h3>
+                        <div class="status-badge">
+                            <i class="fas fa-clock"></i>
+                            <span>In Progress</span>
+                            </div>
+                                </div>
+                    
+                    <div class="details-grid">
+                        <div class="detail-card">
+                            <div class="detail-icon">
+                                <i class="fas fa-wrench"></i>
+                            </div>
+                            <div class="detail-content">
+                                <div class="detail-label">Service Type</div>
+                                <div class="detail-value">Battery Jump Start</div>
+                        </div>
+                        </div>
+                        
+                        <div class="detail-card">
+                            <div class="detail-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="detail-content">
+                                <div class="detail-label">Request Time</div>
+                                <div class="detail-value">Today, 10:15 AM</div>
+                        </div>
+                    </div>
+
+                        <div class="detail-card">
+                            <div class="detail-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div class="detail-content">
+                                <div class="detail-label">Location</div>
+                                <div class="detail-value">Sector 62, Noida, Uttar Pradesh 201301, India</div>
+                                </div>
+                            </div>
+                            
+                        <div class="detail-card">
+                            <div class="detail-icon">
+                                <i class="fas fa-barcode"></i>
+                                </div>
+                            <div class="detail-content">
+                                <div class="detail-label">Tracking Number</div>
+                                <div class="detail-value">RR-124578</div>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-card full-width">
+                            <div class="detail-icon">
+                                <i class="fas fa-sticky-note"></i>
+                            </div>
+                            <div class="detail-content">
+                                <div class="detail-label">Special Instructions</div>
+                                <div class="detail-value">Vehicle is parked in basement parking B2, slot #45</div>
+                            </div>
+                        </div>
+                    </div>
+                            </div>
+                        </div>
+                        
+            <!-- Live Tracking Map -->
+            <div class="tracking-container">
+                <div class="map-section">
+                    <h2><i class="fas fa-map-marked-alt"></i> Live Tracking</h2>
+                        <div id="map"></div>
+                </div>
+                    </div>
+
+            <!-- Tracking Form Section -->
+            <div class="track-form-section">
+                <div class="tracking-container">
+                    <!-- Enter Tracking Details -->
+                    <div class="track-form">
+                        <h2><i class="fas fa-search"></i> Enter Tracking Details</h2>
+                        <form id="trackingForm">
+                            <div class="form-group">
+                                <label for="trackingId">Tracking Number</label>
+                                <input type="text" id="trackingId" placeholder="Enter your tracking number" required>
+                        </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search"></i> Track Service
+                            </button>
+                        </form>
+                        
+                        <div class="tracking-number">
+                            <i class="fas fa-barcode"></i>
+                            <strong>Your Tracking Number: <span id="displayTrackingId">RR-124578</span></strong>
+                        </div>
+                    </div>
+
+                    <!-- Need Additional Support -->
+                    <div class="support-section">
+                        <h3><i class="fas fa-headset"></i> Need Additional Support?</h3>
+                        <div class="support-options">
+                            <div class="support-option">
+                                <div class="support-icon">
+                                    <i class="fas fa-phone"></i>
+                                </div>
+                                <h4>Call Support</h4>
+                                <p>Speak directly with our support team</p>
+                                <a href="tel:+919876543210" class="btn btn-outline">Call Now</a>
+                            </div>
+                            <div class="support-option">
+                                <div class="support-icon">
+                                    <i class="fas fa-comments"></i>
+                                </div>
+                                <h4>Live Chat</h4>
+                                <p>Chat with us for instant assistance</p>
+                                <button id="startChat" class="btn btn-outline">Start Chat</button>
+                            </div>
+                            <div class="support-option">
+                                <div class="support-icon">
+                                    <i class="fas fa-times"></i>
+                                </div>
+                                <h4>Cancel Service</h4>
+                                <p>Cancel your service request</p>
+                                <button id="cancelService" class="btn btn-outline">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>RoadRescue360</h3>
+                    <p>Your trusted partner for roadside assistance. We're here 24/7 to help you get back on the road safely.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="schedule-service.html">Services</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Services</h4>
+                    <ul>
+                        <li><a href="#">Battery Jump Start</a></li>
+                        <li><a href="#">Fuel Delivery</a></li>
+                        <li><a href="#">Lockout Service</a></li>
+                        <li><a href="#">Towing Service</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact Info</h4>
+                    <p><i class="fas fa-phone"></i> +91 98765 43210</p>
+                    <p><i class="fas fa-envelope"></i> support@roadrescue360.com</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Noida, Uttar Pradesh</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 RoadRescue360. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Function to load booking data from localStorage and update the page
+        function loadBookingData() {
+            try {
+                const bookingData = localStorage.getItem('roadRescueBooking');
+                if (bookingData) {
+                    const data = JSON.parse(bookingData);
+                    
+                    // Update tracking ID
+                    if (data.trackingId) {
+                        document.getElementById('displayTrackingId').textContent = data.trackingId;
+                    }
+                    
+                    // Update service type - find by wrench icon
+                    const serviceTitle = data.serviceTitle || data.serviceType || data.service;
+                    if (serviceTitle) {
+                        // Try multiple selectors to find the service type element
+                        let serviceTypeElement = document.querySelector('.detail-card:first-child .detail-value');
+                        
+                        if (!serviceTypeElement) {
+                            serviceTypeElement = document.querySelector('.service-details .detail-card:first-child .detail-value');
+                        }
+                        if (!serviceTypeElement) {
+                            serviceTypeElement = document.querySelector('.details-grid .detail-card:first-child .detail-value');
+                        }
+                        if (!serviceTypeElement) {
+                            // Fallback: find by label text
+                            const labels = document.querySelectorAll('.detail-label');
+                            for (let label of labels) {
+                                if (label.textContent.includes('Service Type')) {
+                                    serviceTypeElement = label.nextElementSibling;
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        if (serviceTypeElement) {
+                            serviceTypeElement.textContent = serviceTitle;
+                        }
+                    }
+                    
+                    // Update request time - find by clock icon
+                    if (data.timestamp) {
+                        const requestDate = new Date(data.timestamp);
+                        const timeString = requestDate.toLocaleString('en-IN', {
+                            weekday: 'short',
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: true
+                        });
+                        
+                        const timeElement = document.querySelector('.detail-card:nth-child(2) .detail-value');
+                        if (timeElement) {
+                            timeElement.textContent = timeString;
+                        }
+                    }
+                    
+                    // Update location - find by map marker icon
+                    if (data.location) {
+                        const locationElement = document.querySelector('.detail-card:nth-child(3) .detail-value');
+                        if (locationElement) {
+                            let locationText = data.location;
+                            if (data.location.includes(',')) {
+                                locationText = 'Sector 62, Noida, Uttar Pradesh 201301, India';
+                            }
+                            locationElement.textContent = locationText;
+                        }
+                    }
+                    
+                    // Update tracking number - find by barcode icon
+                    if (data.trackingId) {
+                        const trackingElement = document.querySelector('.detail-card:nth-child(4) .detail-value');
+                        if (trackingElement) {
+                            trackingElement.textContent = data.trackingId;
+                        }
+                    }
+                    
+                    // Update special instructions - find by sticky note icon
+                    if (data.notes) {
+                        const notesElement = document.querySelector('.detail-card.full-width .detail-value');
+                        if (notesElement) {
+                            notesElement.textContent = data.notes;
+                        }
+                    }
+                    
+                    // Update service cost section
+                    updateServiceCost(data);
+                    
+                    // Update technician badge based on service type
+                    updateTechnicianInfo(data);
+
+                    // Show assigned technician if available from booking
+                    if (data.technician) {
+                        const techNameEl = document.querySelector('.technician-info h3');
+                        const techBadgeEl = document.querySelector('.technician-badge');
+                        if (techNameEl) techNameEl.textContent = data.technician.name || techNameEl.textContent;
+                        if (techBadgeEl && data.technician.rating) techBadgeEl.textContent = `${techBadgeEl.textContent} • ★ ${data.technician.rating.toFixed(1)}`;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading booking data:', error);
+            }
+        }
+        
+        // Function to update service cost information
+        function updateServiceCost(data) {
+            // Update service name in cost breakdown
+            const serviceTitle = data.serviceTitle || data.serviceType || data.service;
+            if (serviceTitle) {
+                const serviceNameElement = document.getElementById('service-name');
+                if (serviceNameElement) {
+                    serviceNameElement.textContent = serviceTitle + ' Service';
+                }
+            }
+            
+            // Update service price in cost breakdown
+            const serviceType = data.service || data.serviceTitle || data.serviceType;
+            if (serviceType) {
+                const baseCosts = {
+                    'battery': 699,
+                    'fuel': 999,
+                    'lockout': 799,
+                    'towing': 1699,
+                    'tire': 899,
+                    'mechanic': 1199,
+                    // Also support service titles
+                    'Battery Jump Start': 699,
+                    'Fuel Delivery': 999,
+                    'Lockout Service': 799,
+                    'Towing Service': 1699,
+                    'Flat Tire Change': 899,
+                    'Mobile Mechanic': 1199
+                };
+                const serviceCost = baseCosts[serviceType] || baseCosts[data.service] || 999;
+                const servicePriceElement = document.getElementById('service-price');
+                if (servicePriceElement) {
+                    servicePriceElement.textContent = '₹' + serviceCost;
+                }
+            }
+        }
+        
+        // Function to update technician info based on service type
+        function updateTechnicianInfo(data) {
+            const serviceSpecialists = {
+                'battery': 'Battery Specialist',
+                'fuel': 'Fuel Delivery Specialist',
+                'lockout': 'Lockout Specialist',
+                'towing': 'Towing Specialist',
+                'tire': 'Tire Change Specialist',
+                'mechanic': 'Mobile Mechanic',
+                // Also support service titles
+                'Battery Jump Start': 'Battery Specialist',
+                'Fuel Delivery': 'Fuel Delivery Specialist',
+                'Lockout Service': 'Lockout Specialist',
+                'Towing Service': 'Towing Specialist',
+                'Flat Tire Change': 'Tire Change Specialist',
+                'Mobile Mechanic': 'Mobile Mechanic'
+            };
+            
+            const technicianBadge = document.querySelector('.technician-badge');
+            const serviceType = data.serviceTitle || data.serviceType || data.service;
+            if (technicianBadge && serviceType) {
+                const specialistType = serviceSpecialists[serviceType] || 'Service Specialist';
+                technicianBadge.textContent = specialistType;
+            }
+        }
+        
+        // Initialize map with user's live location
+        function initMap() {
+            // Get booking data for display
+            let bookingData = null;
+            try {
+                const storedData = localStorage.getItem('roadRescueBooking');
+                if (storedData) {
+                    bookingData = JSON.parse(storedData);
+                }
+            } catch (e) {
+                // Ignore parsing errors
+            }
+            
+            // Get user's current location
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const userLat = position.coords.latitude;
+                        const userLng = position.coords.longitude;
+                        
+                        // Create Google Maps iframe with user's location using standard embed
+                        const mapElement = document.getElementById('map');
+                        if (mapElement) {
+                            // Use a simpler approach - create a Google Maps search URL for the coordinates
+                            const mapsUrl = `https://www.google.com/maps/embed/v1/place?key=AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg&q=${userLat},${userLng}&zoom=15`;
+                            
+                            // Fallback to a working embed URL if the above doesn't work
+                            const fallbackUrl = `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3502.008666288363!2d77.36348107545005!3d28.627465475680233!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390ce5456bf080e1%3A0x9b7ffb6df62fcfed!2sSector%2062%2C%20Noida%2C%20Uttar%20Pradesh!5e0!3m2!1sen!2sin!4v1682490845867!5m2!1sen!2sin`;
+                            
+                            mapElement.innerHTML = `
+                                <div style="position: relative; width: 100%; height: 100%;">
+                                    <iframe 
+                                        src="${fallbackUrl}" 
+                                        width="100%" 
+                                        height="100%" 
+                                        style="border:0;" 
+                                        allowfullscreen="" 
+                                        loading="lazy" 
+                                        referrerpolicy="no-referrer-when-downgrade"
+                                        onerror="this.src='${fallbackUrl}'">
+                                    </iframe>
+                                    <div style="position: absolute; top: 20px; left: 20px; background: rgba(255,255,255,0.95); padding: 15px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 300px;">
+                                        <h4 style="margin: 0 0 10px 0; color: var(--primary); font-size: 1.1rem;">
+                                            <i class="fas fa-map-marked-alt" style="margin-right: 8px;"></i>
+                                            Live Tracking
+                                        </h4>
+                                        <p style="margin: 5px 0; font-size: 0.9rem; color: var(--secondary);">
+                                            <strong>Service:</strong> ${bookingData?.serviceTitle || bookingData?.service || 'Roadside Assistance'}
+                                        </p>
+                                        <p style="margin: 5px 0; font-size: 0.9rem; color: var(--secondary);">
+                                            <strong>Your Location:</strong> ${userLat.toFixed(6)}, ${userLng.toFixed(6)}
+                                        </p>
+                                        <p style="margin: 5px 0; font-size: 0.9rem; color: var(--secondary);">
+                                            <strong>Service Location:</strong> ${bookingData?.location || 'Sector 62, Noida'}
+                                        </p>
+                                        <div style="display: inline-flex; align-items: center; background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 6px 12px; border-radius: 15px; font-size: 0.8rem; font-weight: 600; margin-top: 8px;">
+                                            <i class="fas fa-satellite-dish" style="margin-right: 6px; animation: pulse 2s infinite;"></i>
+                                            <span>Live GPS Active</span>
+                                        </div>
+                                    </div>
+                                    <div style="position: absolute; bottom: 20px; right: 20px; background: rgba(0,86,179,0.9); color: white; padding: 10px 15px; border-radius: 8px; font-size: 0.9rem;">
+                                        <i class="fas fa-crosshairs" style="margin-right: 8px;"></i>
+                                        <span>Your Current Location</span>
+                                    </div>
+                                    <div style="position: absolute; top: 20px; right: 20px; background: rgba(0,86,179,0.9); color: white; padding: 10px 15px; border-radius: 8px; font-size: 0.9rem;">
+                                        <a href="https://www.google.com/maps?q=${userLat},${userLng}" target="_blank" style="color: white; text-decoration: none;">
+                                            <i class="fas fa-external-link-alt" style="margin-right: 8px;"></i>
+                                            <span>Open in Maps</span>
+                                        </a>
+                                    </div>
+                                    <div style="position: absolute; bottom: 20px; left: 20px; background: rgba(255,255,255,0.95); padding: 10px 15px; border-radius: 8px; font-size: 0.9rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                                        <button onclick="window.open('https://www.google.com/maps?q=${userLat},${userLng}', '_blank')" style="background: var(--primary); color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">
+                                            <i class="fas fa-map-marker-alt" style="margin-right: 5px;"></i>
+                                            View My Location
+                                        </button>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    },
+                    function(error) {
+                        // Fallback to default location if geolocation fails
+                        console.log('Geolocation error:', error);
+                        showDefaultMap(bookingData);
+                    }
+                );
+            } else {
+                // Fallback if geolocation is not supported
+                showDefaultMap(bookingData);
+            }
+        }
+        
+        // Fallback function to show default map
+        function showDefaultMap(bookingData) {
+            const mapElement = document.getElementById('map');
+            if (mapElement) {
+                mapElement.innerHTML = `
+                    <div style="position: relative; width: 100%; height: 100%;">
+                        <iframe 
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3502.008666288363!2d77.36348107545005!3d28.627465475680233!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390ce5456bf080e1%3A0x9b7ffb6df62fcfed!2sSector%2062%2C%20Noida%2C%20Uttar%20Pradesh!5e0!3m2!1sen!2sin!4v1682490845867!5m2!1sen!2sin" 
+                            width="100%" 
+                            height="100%" 
+                            style="border:0;" 
+                            allowfullscreen="" 
+                            loading="lazy" 
+                            referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
+                        <div style="position: absolute; top: 20px; left: 20px; background: rgba(255,255,255,0.95); padding: 15px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 300px;">
+                            <h4 style="margin: 0 0 10px 0; color: var(--primary); font-size: 1.1rem;">
+                                <i class="fas fa-map-marked-alt" style="margin-right: 8px;"></i>
+                                Live Tracking
+                            </h4>
+                            <p style="margin: 5px 0; font-size: 0.9rem; color: var(--secondary);">
+                                <strong>Service:</strong> ${bookingData?.serviceTitle || bookingData?.service || 'Roadside Assistance'}
+                            </p>
+                            <p style="margin: 5px 0; font-size: 0.9rem; color: var(--secondary);">
+                                <strong>Location:</strong> ${bookingData?.location || 'Sector 62, Noida'}
+                            </p>
+                            <div style="display: inline-flex; align-items: center; background: linear-gradient(135deg, #ffc107, #ff8c00); color: white; padding: 6px 12px; border-radius: 15px; font-size: 0.8rem; font-weight: 600; margin-top: 8px;">
+                                <i class="fas fa-exclamation-triangle" style="margin-right: 6px;"></i>
+                                <span>Location Access Denied</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        // Test function to create sample booking data
+        function testBookingData(serviceType = 'fuel') {
+            const serviceData = {
+                'fuel': {
+                    service: 'fuel',
+                    serviceTitle: 'Fuel Delivery',
+                    notes: 'Vehicle is parked in basement parking B2, slot #45'
+                },
+                'battery': {
+                    service: 'battery',
+                    serviceTitle: 'Battery Jump Start',
+                    notes: 'Car won\'t start, battery seems dead'
+                },
+                'tire': {
+                    service: 'tire',
+                    serviceTitle: 'Flat Tire Change',
+                    notes: 'Front left tire is flat, spare is in trunk'
+                },
+                'lockout': {
+                    service: 'lockout',
+                    serviceTitle: 'Lockout Service',
+                    notes: 'Keys locked inside car, driver side door'
+                },
+                'towing': {
+                    service: 'towing',
+                    serviceTitle: 'Towing Service',
+                    notes: 'Engine overheated, need towing to nearest garage'
+                }
+            };
+            
+            const selectedService = serviceData[serviceType] || serviceData['fuel'];
+            
+            const testData = {
+                ...selectedService,
+                name: 'John Doe',
+                phone: '9876543210',
+                location: 'Sector 62, Noida',
+                vehicleInfo: 'Honda City - White',
+                time: 'ASAP',
+                paymentMethod: 'card',
+                timestamp: new Date().toISOString(),
+                trackingId: 'RR-' + Math.floor(Math.random() * 1000000)
+            };
+            
+            localStorage.setItem('roadRescueBooking', JSON.stringify(testData));
+            loadBookingData();
+        }
+        
+        // Make test function available globally
+        window.testBookingData = testBookingData;
+        
+        // Initialize the page when it loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load booking data from localStorage with a small delay to ensure DOM is ready
+            setTimeout(() => {
+                loadBookingData();
+            }, 100);
+            
+            // Initialize map
+            initMap();
+            
+            // If form is used, update the tracking ID
+            document.getElementById('trackingForm')?.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const trackingId = document.getElementById('trackingId').value.trim();
+                
+                if (trackingId) {
+                    document.getElementById('displayTrackingId').textContent = trackingId.toUpperCase();
+                    
+                    // Scroll to service status section
+                    document.querySelector('.service-status')?.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+    
+    <script>
+        
+        // Cancel service
+        document.getElementById('cancelService')?.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (confirm('Are you sure you want to cancel this service request?')) {
+                alert('Your service has been canceled. You will receive a confirmation via SMS shortly.');
+            }
+        });
+        
+        // Start chat
+        document.getElementById('startChat')?.addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('Live chat feature is coming soon! Please call our support team for immediate assistance.');
+        });
+    </script>
+
+    <script>
+        // Theme toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeToggle = document.getElementById('theme-toggle');
+            const html = document.documentElement;
+            
+            // Check for saved theme preference or default to 'light'
+            const currentTheme = localStorage.getItem('theme') || 'light';
+            html.setAttribute('data-theme', currentTheme);
+            
+            // Update toggle position based on current theme
+            updateTogglePosition(currentTheme);
+            
+            themeToggle.addEventListener('click', function() {
+                const currentTheme = html.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                
+                html.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                updateTogglePosition(newTheme);
+            });
+            
+            function updateTogglePosition(theme) {
+                const toggleThumb = document.querySelector('.toggle-thumb');
+                if (toggleThumb) {
+                    toggleThumb.style.transform = theme === 'dark' ? 'translateX(20px)' : 'translateX(0)';
+                }
+            }
+        });
+
+        // Mobile menu functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            const navLinks = document.querySelector('.nav-links');
+            
+            if (mobileMenu && navLinks) {
+                mobileMenu.addEventListener('click', function() {
+                    navLinks.classList.toggle('active');
+                    mobileMenu.classList.toggle('active');
+                });
+            }
+        });
+    </script>
+</body>
+</html> 

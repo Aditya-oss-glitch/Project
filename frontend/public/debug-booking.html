@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Booking - RoadRescue360</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .debug-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #0056b3;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+            font-size: 16px;
+            display: block;
+            width: 100%;
+        }
+        .test-button:hover {
+            background: #004494;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+        }
+        .error {
+            background: #ffebee;
+            border: 1px solid #f44336;
+            color: #c62828;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border: 1px solid #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-container">
+        <h1>🔍 Debug Booking Data - RoadRescue360</h1>
+        <p>This page helps debug the booking data storage and loading process.</p>
+        
+        <div class="status" id="status">
+            Click the buttons below to test the booking process.
+        </div>
+        
+        <button class="test-button" onclick="setFuelBooking()">⛽ Set Fuel Delivery Booking</button>
+        <button class="test-button" onclick="checkBookingData()">📋 Check Current Booking Data</button>
+        <button class="test-button" onclick="goToTrackPage()">📱 Go to Track Page</button>
+        <button class="test-button" onclick="clearBookingData()" style="background: #dc3545;">🗑️ Clear Booking Data</button>
+        
+        <h3>Current Booking Data:</h3>
+        <pre id="currentData">No booking data found.</pre>
+        
+        <h3>Debug Information:</h3>
+        <pre id="debugInfo">Click "Check Current Booking Data" to see debug info.</pre>
+    </div>
+
+    <script>
+        function setFuelBooking() {
+            const bookingData = {
+                service: 'fuel',
+                serviceTitle: 'Fuel Delivery',
+                servicePricing: 'Starting at ₹800',
+                serviceDescription: 'Emergency fuel delivery service to get you back on the road.',
+                serviceIcon: '<i class="fas fa-gas-pump"></i>',
+                name: 'John Doe',
+                phone: '+91 9876543210',
+                location: 'Sector 62, Noida, Uttar Pradesh 201301, India',
+                vehicleInfo: 'Honda City - White - DL-01-AB-1234',
+                time: 'ASAP',
+                paymentMethod: 'Credit Card',
+                notes: 'Vehicle is parked in basement parking B2, slot #45',
+                timestamp: new Date().toISOString(),
+                trackingId: 'RR-' + Math.floor(Math.random() * 1000000)
+            };
+            
+            try {
+                localStorage.setItem('roadRescueBooking', JSON.stringify(bookingData));
+                document.getElementById('status').innerHTML = `
+                    ✅ <strong>Fuel Delivery</strong> booking data has been set!<br>
+                    Tracking ID: <strong>${bookingData.trackingId}</strong><br>
+                    Service Title: <strong>${bookingData.serviceTitle}</strong>
+                `;
+                checkBookingData();
+            } catch (error) {
+                document.getElementById('status').innerHTML = `
+                    ❌ <strong>Error setting booking data:</strong><br>
+                    ${error.message}
+                `;
+                document.getElementById('status').className = 'status error';
+            }
+        }
+        
+        function checkBookingData() {
+            try {
+                const bookingData = localStorage.getItem('roadRescueBooking');
+                
+                if (bookingData) {
+                    const data = JSON.parse(bookingData);
+                    document.getElementById('currentData').textContent = JSON.stringify(data, null, 2);
+                    
+                    // Debug info
+                    const debugInfo = `
+Booking Data Status: ✅ Found
+Service: ${data.service || 'Not set'}
+Service Title: ${data.serviceTitle || 'Not set'}
+Tracking ID: ${data.trackingId || 'Not set'}
+Timestamp: ${data.timestamp || 'Not set'}
+Location: ${data.location || 'Not set'}
+Notes: ${data.notes || 'Not set'}
+
+Element Check:
+- Service Type should be: ${data.serviceTitle || 'Not set'}
+- Cost should be: ₹${getServiceCost(data.service)}
+                    `;
+                    
+                    document.getElementById('debugInfo').textContent = debugInfo;
+                } else {
+                    document.getElementById('currentData').textContent = 'No booking data found in localStorage.';
+                    document.getElementById('debugInfo').textContent = 'No booking data found. Click "Set Fuel Delivery Booking" first.';
+                }
+            } catch (error) {
+                document.getElementById('currentData').textContent = `Error reading booking data: ${error.message}`;
+                document.getElementById('debugInfo').textContent = `Error: ${error.message}`;
+            }
+        }
+        
+        function getServiceCost(service) {
+            const costs = {
+                'battery': 699,
+                'fuel': 999,
+                'lockout': 799,
+                'towing': 1699,
+                'tire': 899,
+                'mechanic': 1199
+            };
+            return costs[service] || 999;
+        }
+        
+        function goToTrackPage() {
+            window.location.href = 'track-service.html';
+        }
+        
+        function clearBookingData() {
+            localStorage.removeItem('roadRescueBooking');
+            document.getElementById('status').innerHTML = '🗑️ Booking data has been cleared.';
+            document.getElementById('currentData').textContent = 'No booking data found.';
+            document.getElementById('debugInfo').textContent = 'Booking data cleared.';
+        }
+        
+        // Check booking data on page load
+        checkBookingData();
+    </script>
+</body>
+</html>
+
+
+

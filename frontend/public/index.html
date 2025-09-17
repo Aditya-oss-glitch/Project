@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoadRescue360 | Fast & Reliable Roadside Assistance</title>
+    <meta name="description" content="RoadRescue360 - Professional roadside assistance services available 24/7. Get help with flat tires, battery jump starts, lockouts, towing, and more.">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Racing+Sans+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="images/favicon.png">
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js" crossorigin="anonymous"></script>
+    <script src="script.js"></script>
+    <script src="emergency.js"></script>
+    <script src="tracking.js"></script>
+    <script src="combine-booking.js"></script>
+    <script src="message-fix.js" defer></script>
+    <script src="schedule.js" defer></script>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <h1><i class="fas fa-car-crash"></i> <span class="logo-text">ROAD<span class="logo-highlight">RESCUE</span><span class="logo-number">360</span></span></h1>
+            </div>
+            <div class="nav-links">
+                <a href="index.html" class="active">Home</a>
+                <a href="#services">Services</a>
+                <a href="schedule-service.html">Schedule</a>
+                <a href="track-service.html">Track</a>
+                <a href="ratings.html">Ratings</a>
+                <a href="faq.html">FAQ</a>
+                <a href="about.html">About Us</a>
+                <a href="contact.html">Contact</a>
+                <a href="login.html" id="nav-login">Login</a>
+                <a href="mechanic-home.html" id="nav-mechanic" style="display:none;">Mechanic</a>
+                <a href="#" id="nav-logout" style="display:none;">Logout</a>
+            </div>
+            <div class="theme-toggle" id="theme-toggle">
+                <i class="fas fa-sun"></i>
+                <div class="toggle-track">
+                    <div class="toggle-thumb"></div>
+                </div>
+                <i class="fas fa-moon"></i>
+            </div>
+            <div class="mobile-menu" id="mobile-menu">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="container">
+            <div class="hero-content">
+                <div class="badge-wrapper">
+                    <span class="hero-badge"><i class="fas fa-star"></i> Trusted Service</span>
+                </div>
+                <h1>RoadRescue360: 24/7 Roadside Assistance You Can Trust</h1>
+                <p>We're there when you need us most. Fast response times, affordable rates, and professional service for all your roadside emergencies.</p>
+                <div class="hero-buttons">
+                    <button class="cta-button" id="emergency-btn">
+                        <i class="fas fa-exclamation-circle"></i> Emergency Assistance
+                    </button>
+                    <button class="cta-button secondary" id="track-btn">
+                        <i class="fas fa-map-marker-alt"></i> Track My Service
+                    </button>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <div class="stat-number">5000+</div>
+                        <div class="stat-label">Customers Served</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">15 min</div>
+                        <div class="stat-label">Avg. Response Time</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">98%</div>
+                        <div class="stat-label">Satisfaction Rate</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services-section" id="services">
+        <div class="container">
+            <h2 class="section-title">
+                <i class="fas fa-tools section-title-icon"></i>
+                Our Services
+            </h2>
+            <div class="services-grid">
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="fas fa-car-battery"></i>
+                    </div>
+                    <div class="service-category"><span><i class="fas fa-bolt"></i> Urgent Help</span></div>
+                    <h3>Battery Jump Start</h3>
+                    <p>Get back on the road quickly with our professional jump start service. Our technicians will arrive promptly with the right equipment to get your vehicle running again.</p>
+                    <div class="service-buttons">
+                        <a href="#" class="btn-learn" data-service="battery">Learn More</a>
+                        <a href="#" class="btn-book" data-service="battery">Book Now</a>
+                    </div>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="fas fa-gas-pump"></i>
+                    </div>
+                    <div class="service-category"><span><i class="fas fa-tachometer-alt"></i> Emergency</span></div>
+                    <h3>Fuel Delivery</h3>
+                    <p>Run out of fuel? Don't worry, we'll deliver the fuel you need directly to your location, getting you back on the road without the hassle of finding a gas station.</p>
+                    <div class="service-buttons">
+                        <a href="#" class="btn-learn" data-service="fuel">Learn More</a>
+                        <a href="#" class="btn-book" data-service="fuel">Book Now</a>
+                    </div>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="fas fa-key"></i>
+                    </div>
+                    <div class="service-category"><span><i class="fas fa-unlock"></i> Quick Service</span></div>
+                    <h3>Lockout Service</h3>
+                    <p>Locked your keys in your car? Our specialists use professional tools and techniques to safely unlock your vehicle without causing any damage.</p>
+                    <div class="service-buttons">
+                        <a href="#" class="btn-learn" data-service="lockout">Learn More</a>
+                        <a href="#" class="btn-book" data-service="lockout">Book Now</a>
+                    </div>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="fas fa-truck-pickup"></i>
+                    </div>
+                    <div class="service-category"><span><i class="fas fa-truck"></i> Transport</span></div>
+                    <h3>Towing Service</h3>
+                    <p>When your vehicle can't be fixed on the spot, our towing service will safely transport your vehicle to your preferred repair shop or destination.</p>
+                    <div class="service-buttons">
+                        <a href="#" class="btn-learn" data-service="towing">Learn More</a>
+                        <a href="#" class="btn-book" data-service="towing">Book Now</a>
+                    </div>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <div class="service-category"><span><i class="fas fa-road"></i> Roadside</span></div>
+                    <h3>Flat Tire Change</h3>
+                    <p>Got a flat? Our technicians will quickly replace your flat tire with your spare, ensuring you're back on the road safely and without delay.</p>
+                    <div class="service-buttons">
+                        <a href="#" class="btn-learn" data-service="tire">Learn More</a>
+                        <a href="#" class="btn-book" data-service="tire">Book Now</a>
+                    </div>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="fas fa-wrench"></i>
+                    </div>
+                    <div class="service-category"><span><i class="fas fa-cogs"></i> Technical</span></div>
+                    <h3>Mobile Mechanic</h3>
+                    <p>For more complex issues, our mobile mechanics bring the auto shop to you. We can diagnose and fix many common problems right at your location.</p>
+                    <div class="service-buttons">
+                        <a href="#" class="btn-learn" data-service="mechanic">Learn More</a>
+                        <a href="#" class="btn-book" data-service="mechanic">Book Now</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Emergency Modal -->
+    <div class="modal" id="emergency-modal">
+        <div class="modal-content">
+            <button class="close-modal" id="close-emergency-modal">&times;</button>
+            <h2>Emergency Roadside Assistance</h2>
+            <p>Please provide your location and details about your emergency:</p>
+            <form id="emergency-form">
+                <div class="form-group">
+                    <label for="name">Your Name</label>
+                    <input type="text" id="name" name="name" placeholder="Enter your full name" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" required>
+                </div>
+                <div class="form-group">
+                    <label for="location">Your Location</label>
+                    <input type="text" id="location" name="location" placeholder="Enter your current location" required>
+                    <button type="button" id="use-gps" class="secondary-button">
+                        <i class="fas fa-map-marker-alt"></i> Use Current Location
+                    </button>
+                </div>
+                <div class="form-group">
+                    <label for="service-type">Service Needed</label>
+                    <select id="service-type" name="service-type" required>
+                        <option value="" disabled selected>Select service type</option>
+                        <option value="battery">Battery Jump Start</option>
+                        <option value="fuel">Fuel Delivery</option>
+                        <option value="lockout">Lockout Service</option>
+                        <option value="towing">Towing Service</option>
+                        <option value="tire">Flat Tire Change</option>
+                        <option value="mechanic">Mobile Mechanic</option>
+                        <option value="other">Other (Please specify)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="vehicle-info">Vehicle Information</label>
+                    <input type="text" id="vehicle-info" name="vehicle-info" placeholder="Year, Make, Model, Color" required>
+                </div>
+                <div class="form-group">
+                    <label for="emergency-description">Description of Emergency</label>
+                    <textarea id="emergency-description" name="emergency-description" placeholder="Please provide details about your situation" rows="3"></textarea>
+                </div>
+                <button type="submit" class="submit-button">
+                    <i class="fas fa-car-side"></i> Request Immediate Assistance
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div class="modal" id="payment-modal">
+        <div class="modal-content">
+            <button class="close-modal" id="close-payment-modal">&times;</button>
+            <h2>Book Roadside Assistance</h2>
+            <p>Please provide your details to book our <span id="service-title">service</span>:</p>
+            <form id="payment-form">
+                <div class="form-group">
+                    <label for="payment-name">Your Name</label>
+                    <input type="text" id="payment-name" name="payment-name" placeholder="Enter your full name" required>
+                </div>
+                <div class="form-group">
+                    <label for="payment-phone">Phone Number</label>
+                    <input type="tel" id="payment-phone" name="payment-phone" placeholder="Enter your phone number" required>
+                </div>
+                <div class="form-group">
+                    <label for="payment-location">Service Location</label>
+                    <input type="text" id="payment-location" name="payment-location" placeholder="Enter service location" required>
+                    <button type="button" id="payment-use-gps" class="secondary-button">
+                        <i class="fas fa-map-marker-alt"></i> Use Current Location
+                    </button>
+                </div>
+                <div class="form-group">
+                    <label for="payment-vehicle-info">Vehicle Information</label>
+                    <input type="text" id="payment-vehicle-info" name="payment-vehicle-info" placeholder="Year, Make, Model, Color" required>
+                </div>
+                <div class="form-group">
+                    <label for="payment-time">Preferred Service Time</label>
+                    <select id="payment-time" name="payment-time" required>
+                        <option value="" disabled selected>Select preferred time</option>
+                        <option value="asap">As Soon As Possible</option>
+                        <option value="today">Later Today</option>
+                        <option value="tomorrow">Tomorrow</option>
+                        <option value="schedule">Schedule for Later Date</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="payment-method">Payment Method</label>
+                    <select id="payment-method" name="payment-method" required>
+                        <option value="" disabled selected>Select payment method</option>
+                        <option value="credit">Credit Card</option>
+                        <option value="debit">Debit Card</option>
+                        <option value="paypal">PayPal</option>
+                        <option value="cash">Cash on Delivery</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="payment-notes">Special Instructions</label>
+                    <textarea id="payment-notes" name="payment-notes" placeholder="Any additional information we should know" rows="2"></textarea>
+                </div>
+                <button type="submit" class="submit-button">
+                    <i class="fas fa-check-circle"></i> Confirm Booking
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Service Details Modal -->
+    <div class="modal service-details-modal" id="service-details-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="service-detail-title">Service Details</h2>
+                <button class="close-modal" id="close-service-details-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="service-icon large" id="service-detail-icon">
+                    <i class="fas fa-car-battery"></i>
+                </div>
+                <div class="service-description" id="service-detail-description">
+                    <p>Loading service details...</p>
+                </div>
+                <div class="service-features">
+                    <h3>Key Features</h3>
+                    <ul id="service-detail-features">
+                        <li>Loading features...</li>
+                    </ul>
+                </div>
+                <div class="service-pricing" id="service-detail-pricing">
+                    <h3>Pricing</h3>
+                    <p id="service-detail-price">Loading pricing information...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="secondary-button" id="service-details-close">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Message -->
+    <div class="success-message" id="success-message" style="display: none;">
+        <i class="fas fa-check-circle"></i>
+        <div class="message-content">
+            <p>Success!</p>
+            <p id="success-message-text">Your request has been submitted successfully.</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auth-aware nav toggles
+            try {
+                const userToken = JSON.parse(localStorage.getItem('rr_user_token'));
+                const techToken = JSON.parse(localStorage.getItem('rr_tech_token'));
+                const navLogin = document.getElementById('nav-login');
+                const navMechanic = document.getElementById('nav-mechanic');
+                const navLogout = document.getElementById('nav-logout');
+                if (techToken && navMechanic) navMechanic.style.display = 'inline-block';
+                if ((userToken || techToken) && navLogin) navLogin.style.display = 'none';
+                if ((userToken || techToken) && navLogout) navLogout.style.display = 'inline-block';
+                if (navLogout) {
+                    navLogout.addEventListener('click', function(e){
+                        e.preventDefault();
+                        localStorage.removeItem('rr_user_token');
+                        localStorage.removeItem('rr_tech_token');
+                        window.location.reload();
+                    });
+                }
+            } catch (_) {}
+            // Modal toggle functions
+            const emergencyBtn = document.getElementById('emergency-btn');
+            const emergencyModal = document.getElementById('emergency-modal');
+            const closeEmergencyModal = document.getElementById('close-emergency-modal');
+            
+            const paymentModal = document.getElementById('payment-modal');
+            const closePaymentModal = document.getElementById('close-payment-modal');
+            
+            const serviceDetailsModal = document.getElementById('service-details-modal');
+            const closeServiceDetailsModal = document.getElementById('close-service-details-modal');
+            const serviceDetailsClose = document.getElementById('service-details-close');
+            
+            let currentService = '';
+            
+            // Emergency modal
+            if (emergencyBtn) {
+                emergencyBtn.addEventListener('click', function() {
+                    emergencyModal.style.display = 'flex';
+                });
+            }
+            
+            if (closeEmergencyModal) {
+                closeEmergencyModal.addEventListener('click', function() {
+                    emergencyModal.style.display = 'none';
+                });
+            }
+            
+            // Payment modal close
+            if (closePaymentModal) {
+                closePaymentModal.addEventListener('click', function() {
+                    paymentModal.style.display = 'none';
+                });
+            }
+            
+            // Service details modal
+            if (closeServiceDetailsModal) {
+                closeServiceDetailsModal.addEventListener('click', function() {
+                    serviceDetailsModal.style.display = 'none';
+                });
+            }
+            
+            if (serviceDetailsClose) {
+                serviceDetailsClose.addEventListener('click', function() {
+                    serviceDetailsModal.style.display = 'none';
+                });
+            }
+            
+            
+            // Setup Learn More buttons
+            const learnMoreButtons = document.querySelectorAll('.btn-learn');
+            learnMoreButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const service = this.getAttribute('data-service');
+                    currentService = service;
+                    showServiceDetails(service);
+                });
+            });
+            
+            // Setup Book Now buttons
+            const bookNowButtons = document.querySelectorAll('.btn-book');
+            bookNowButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const service = this.getAttribute('data-service');
+                    currentService = service;
+                    showPaymentModal(service);
+                });
+            });
+            
+            // Function to show service details
+            function showServiceDetails(service) {
+                const title = document.getElementById('service-detail-title');
+                const icon = document.getElementById('service-detail-icon');
+                const description = document.getElementById('service-detail-description');
+                const features = document.getElementById('service-detail-features');
+                const price = document.getElementById('service-detail-price');
+                
+                // Set details based on service type
+                title.textContent = getServiceTitle(service);
+                icon.innerHTML = getServiceIcon(service);
+                description.innerHTML = getServiceDescription(service);
+                features.innerHTML = getServiceFeatures(service);
+                price.innerHTML = getServicePricing(service);
+                
+                // Show the modal
+                serviceDetailsModal.style.display = 'flex';
+            }
+            
+            // Function to show payment modal
+            function showPaymentModal(service) {
+                const serviceTitle = document.getElementById('service-title');
+                if (serviceTitle) {
+                    serviceTitle.textContent = getServiceTitle(service);
+                }
+                paymentModal.style.display = 'flex';
+            }
+            
+            // Helper functions to get service information
+            function getServiceTitle(service) {
+                const titles = {
+                    'battery': 'Battery Jump Start',
+                    'fuel': 'Fuel Delivery',
+                    'lockout': 'Lockout Service',
+                    'towing': 'Towing Service',
+                    'tire': 'Flat Tire Change',
+                    'mechanic': 'Mobile Mechanic'
+                };
+                return titles[service] || 'Service';
+            }
+            
+            function getServiceIcon(service) {
+                const icons = {
+                    'battery': '<i class="fas fa-car-battery"></i>',
+                    'fuel': '<i class="fas fa-gas-pump"></i>',
+                    'lockout': '<i class="fas fa-key"></i>',
+                    'towing': '<i class="fas fa-truck-pickup"></i>',
+                    'tire': '<i class="fas fa-tools"></i>',
+                    'mechanic': '<i class="fas fa-wrench"></i>'
+                };
+                return icons[service] || '<i class="fas fa-car"></i>';
+            }
+            
+            function getServiceDescription(service) {
+                const descriptions = {
+                    'battery': '<p>Our professional Battery Jump Start service gets you back on the road quickly when your battery fails. We come equipped with commercial-grade jumper cables and portable power packs that can start almost any vehicle without needing another car.</p><p>Our technicians are trained to safely jump-start your vehicle while protecting your car\'s sensitive electronics. We\'ll also perform a basic check of your charging system to identify potential issues.</p>',
+                    'fuel': '<p>Running out of fuel can happen to anyone. Our Fuel Delivery service brings the gas station to you, saving you the hassle and potential danger of leaving your vehicle.</p><p>We deliver premium, regular, or diesel fuel directly to your location. Our service vehicles carry secure fuel containers, allowing us to provide enough fuel to get you to the nearest gas station safely.</p>',
+                    'lockout': '<p>Being locked out of your vehicle is frustrating and sometimes even dangerous depending on your location and the weather. Our professional Lockout Service uses specialized tools to safely and quickly regain access to your vehicle.</p><p>Our technicians are trained in the latest entry techniques and use tools designed to prevent damage to your vehicle\'s locking mechanisms and electronics.</p>',
+                    'towing': '<p>When your vehicle can\'t be fixed on the spot, our professional Towing Service safely transports your vehicle to your preferred destination. We use modern tow trucks and equipment to ensure your vehicle is moved without causing any damage.</p><p>Whether you need a local tow to a nearby mechanic or a long-distance tow to your home or preferred service center, our fleet can accommodate your needs.</p>',
+                    'tire': '<p>Flat tires often happen at the most inconvenient times. Our Flat Tire Change service brings professional assistance right to your location. Our technicians will quickly and safely change your flat tire with your spare.</p><p>If you don\'t have a spare or if your spare isn\'t in usable condition, we can tow your vehicle to the nearest tire shop or offer temporary solutions to get you back on the road.</p>',
+                    'mechanic': '<p>For more complex issues, our Mobile Mechanic service brings the auto shop to you. Our skilled mechanics arrive with the tools and parts needed to diagnose and repair many common vehicle problems right at your location.</p><p>We can handle issues from electrical problems to minor mechanical repairs, often eliminating the need for a tow to a repair shop.</p>'
+                };
+                return descriptions[service] || '<p>Detailed information about this service will be provided soon.</p>';
+            }
+            
+            function getServiceFeatures(service) {
+                const features = {
+                    'battery': '<li>Professional-grade equipment for safe jump starts</li><li>Basic charging system check</li><li>Battery terminal cleaning if needed</li><li>Advice on battery replacement if necessary</li><li>Available 24/7 in all weather conditions</li>',
+                    'fuel': '<li>Fast delivery of regular, premium, or diesel fuel</li><li>Enough fuel to reach the nearest gas station</li><li>Safe handling and transfer of fuel</li><li>Optional fuel container for future emergencies</li><li>Available 24/7 in all weather conditions</li>',
+                    'lockout': '<li>Damage-free entry techniques</li><li>Works with all vehicle makes and models</li><li>Specialized tools for modern electronic locks</li><li>Key extraction if keys are stuck in ignition</li><li>Available 24/7 in all weather conditions</li>',
+                    'towing': '<li>Flatbed and wheel-lift towing available</li><li>Short and long-distance towing options</li><li>Careful handling of low-clearance vehicles</li><li>Motorcycle towing capabilities</li><li>Available 24/7 in all weather conditions</li>',
+                    'tire': '<li>Fast and safe tire changes</li><li>Proper torquing of lug nuts</li><li>Inspection of spare tire condition</li><li>Basic inspection of other tires</li><li>Available 24/7 in all weather conditions</li>',
+                    'mechanic': '<li>On-site diagnostics using professional tools</li><li>Minor repairs completed on location</li><li>Battery testing and replacement</li><li>Starter and alternator testing</li><li>Scheduled appointments available</li>'
+                };
+                return features[service] || '<li>Features will be listed soon</li>';
+            }
+            
+            function getServicePricing(service) {
+                const pricing = {
+                    'battery': 'Starting at $69.99 for standard vehicles<br>Additional charges may apply for commercial vehicles or difficult access locations.',
+                    'fuel': 'Service fee: $49.99 plus the cost of fuel<br>Premium and diesel fuel available at current market prices.',
+                    'lockout': 'Starting at $79.99 for standard vehicles<br>Additional charges may apply for high-security locks or complex electronic systems.',
+                    'towing': 'Starting at $99.99 for local towing (up to 5 miles)<br>$3.50 per additional mile for long-distance towing.',
+                    'tire': 'Starting at $59.99 for standard vehicles<br>Additional charges may apply for commercial vehicles or specialty tires.',
+                    'mechanic': 'Diagnostic fee: $89.99 (applied toward repair cost if service is performed)<br>Repair costs provided after diagnosis.'
+                };
+                return pricing[service] || 'Please call for current pricing information.';
+            }
+            
+            // GPS location functionality for emergency modal
+            const useGps = document.getElementById('use-gps');
+            const locationInput = document.getElementById('location');
+            if (useGps && locationInput) {
+                useGps.addEventListener('click', function() {
+                    if (navigator.geolocation) {
+                        useGps.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Getting Location...';
+                        useGps.disabled = true;
+                        
+                        navigator.geolocation.getCurrentPosition(
+                            function(position) {
+                                const lat = position.coords.latitude;
+                                const lng = position.coords.longitude;
+                                locationInput.value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                                useGps.innerHTML = '<i class="fas fa-map-marker-alt"></i> Use Current Location';
+                                useGps.disabled = false;
+                            },
+                            function(error) {
+                                alert('Unable to get your location. Please enter it manually.');
+                                useGps.innerHTML = '<i class="fas fa-map-marker-alt"></i> Use Current Location';
+                                useGps.disabled = false;
+                            }
+                        );
+                    } else {
+                        alert('Geolocation is not supported by this browser.');
+                    }
+                });
+            }
+            
+            // Dark mode toggle
+            const themeToggle = document.getElementById('theme-toggle');
+            if (themeToggle) {
+                themeToggle.addEventListener('click', function() {
+                    document.body.classList.toggle('dark-mode');
+                });
+            }
+            
+            // GPS location functionality for payment modal
+            const paymentUseGps = document.getElementById('payment-use-gps');
+            const paymentLocation = document.getElementById('payment-location');
+            if (paymentUseGps && paymentLocation) {
+                paymentUseGps.addEventListener('click', function() {
+                    if (navigator.geolocation) {
+                        paymentUseGps.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Getting Location...';
+                        paymentUseGps.disabled = true;
+                        
+                        navigator.geolocation.getCurrentPosition(
+                            function(position) {
+                                const lat = position.coords.latitude;
+                                const lng = position.coords.longitude;
+                                paymentLocation.value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                                paymentUseGps.innerHTML = '<i class="fas fa-map-marker-alt"></i> Use Current Location';
+                                paymentUseGps.disabled = false;
+                            },
+                            function(error) {
+                                alert('Unable to get your location. Please enter it manually.');
+                                paymentUseGps.innerHTML = '<i class="fas fa-map-marker-alt"></i> Use Current Location';
+                                paymentUseGps.disabled = false;
+                            }
+                        );
+                    } else {
+                        alert('Geolocation is not supported by this browser.');
+                    }
+                });
+            }
+            
+            // Payment form handling (POST to backend)
+            const paymentForm = document.getElementById('payment-form');
+            if (paymentForm) {
+                paymentForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const submitBtn = paymentForm.querySelector('.submit-button');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Booking...';
+                    }
+                    
+                    try {
+                        const formData = new FormData(paymentForm);
+                        const rawLocation = formData.get('payment-location') || '';
+                        let locationGeo = null;
+                        if (rawLocation && rawLocation.includes(',')) {
+                            const parts = rawLocation.split(',');
+                            const lat = parseFloat(parts[0]);
+                            const lng = parseFloat(parts[1]);
+                            if (!isNaN(lat) && !isNaN(lng)) {
+                                locationGeo = { type: 'Point', coordinates: [lng, lat] };
+                            }
+                        }
+                        
+                        const vehicleRaw = (formData.get('payment-vehicle-info') || '').trim();
+                        const vehicleParts = vehicleRaw.split(/[-,]/).map(s => s.trim());
+                        const vehicleDetails = {
+                            year: vehicleParts[0] && /\d{4}/.test(vehicleParts[0]) ? vehicleParts[0] : '',
+                            make: vehicleParts[1] || vehicleParts[0] || '',
+                            model: vehicleParts[2] || '',
+                            color: vehicleParts[3] || ''
+                        };
+                        
+                        const payload = {
+                            type: currentService || 'battery',
+                            location: locationGeo || { type: 'Point', coordinates: [77.3635, 28.6275] },
+                            address: rawLocation || 'Unknown',
+                            contactName: formData.get('payment-name') || '',
+                            contactPhone: formData.get('payment-phone') || '',
+                            vehicleDetails,
+                            description: formData.get('payment-notes') || getServiceTitle(currentService)
+                        };
+                        
+                        const res = await fetch('/api/services', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        
+                        if (!res.ok) {
+                            throw new Error('Failed to create service');
+                        }
+                        const service = await res.json();
+                        
+                        // Persist minimal booking info for the tracking page
+                        const bookingData = {
+                            service: currentService,
+                            serviceTitle: getServiceTitle(currentService),
+                            location: rawLocation,
+                            notes: formData.get('payment-notes') || '',
+                            timestamp: new Date().toISOString(),
+                            trackingId: service._id,
+                            technician: service.assignedTechnician || null
+                        };
+                        try { localStorage.setItem('roadRescueBooking', JSON.stringify(bookingData)); } catch (_) {}
+                        
+                        const successMessage = document.getElementById('success-message');
+                        const successText = document.getElementById('success-message-text');
+                        if (successMessage && successText) {
+                            successText.textContent = `Your ${getServiceTitle(currentService)} has been booked! Tracking # ${service._id}`;
+                            successMessage.style.display = 'flex';
+                        }
+                        paymentModal.style.display = 'none';
+                        
+                        setTimeout(() => {
+                            window.location.href = 'track-service.html';
+                        }, 1500);
+                    } catch (err) {
+                        alert('Booking failed. Please try again.');
+                        console.error(err);
+                    } finally {
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Confirm Booking';
+                        }
+                    }
+                });
+            }
+            
+            // Mobile menu toggle
+            const mobileMenu = document.getElementById('mobile-menu');
+            const navLinks = document.querySelector('.nav-links');
+            if (mobileMenu && navLinks) {
+                mobileMenu.addEventListener('click', function() {
+                    navLinks.classList.toggle('active');
+                });
+            }
+            
+            // Service animation on scroll
+            enhanceServicesSection();
+        });
+    </script>
+</body>
+</html> 

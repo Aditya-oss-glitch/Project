@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ratings & Reviews - RoadRescue360</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Ratings page specific styles */
+        .ratings-hero {
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
+                        url('https://images.unsplash.com/photo-1573497019418-b400bb3ab074?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 50vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            padding-top: 80px;
+            position: relative;
+        }
+        
+        .ratings-hero .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .ratings-hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+        
+        .ratings-hero p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto;
+            font-weight: 300;
+        }
+        
+        .ratings-section {
+            padding: 80px 0;
+            background-color: #f8f9fa;
+        }
+        
+        .ratings-overview {
+            background-color: white;
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 50px;
+        }
+        
+        .overview-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 40px;
+            align-items: center;
+        }
+        
+        .rating-score {
+            text-align: center;
+        }
+        
+        .rating-number {
+            font-size: 5rem;
+            font-weight: 700;
+            color: #0056b3;
+            line-height: 1;
+            margin-bottom: 10px;
+        }
+        
+        .rating-stars {
+            font-size: 1.5rem;
+            color: #ffc107;
+            margin-bottom: 10px;
+        }
+        
+        .rating-count {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .rating-breakdown {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .rating-bar {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .rating-label {
+            min-width: 60px;
+            text-align: right;
+            font-weight: 500;
+        }
+        
+        .rating-progress {
+            flex-grow: 1;
+            height: 12px;
+            background-color: #e9ecef;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        
+        .rating-progress-inner {
+            height: 100%;
+            background-color: #0056b3;
+            border-radius: 6px;
+        }
+        
+        .rating-percentage {
+            min-width: 50px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .review-filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 8px 15px;
+            background-color: #e9ecef;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .filter-btn:hover, .filter-btn.active {
+            background-color: #0056b3;
+            color: white;
+        }
+        
+        .review-sort {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .sort-label {
+            font-weight: 500;
+            color: #444;
+        }
+        
+        .sort-select {
+            padding: 8px 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            background-color: white;
+            font-size: 0.9rem;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .reviews-list {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        .review-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+        }
+        
+        .review-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .reviewer {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .reviewer-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+        
+        .reviewer-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .reviewer-info h3 {
+            margin: 0 0 5px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #333;
+        }
+        
+        .reviewer-info p {
+            margin: 0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .review-rating {
+            color: #ffc107;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 5px;
+        }
+        
+        .review-date {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .review-content {
+            margin-bottom: 20px;
+            line-height: 1.6;
+            color: #444;
+        }
+        
+        .review-tags {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .review-tag {
+            padding: 5px 12px;
+            background-color: #e9ecef;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: #444;
+        }
+        
+        .review-response {
+            background-color: #f8f9fa;
+            border-left: 3px solid #0056b3;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        .response-header {
+            font-weight: 600;
+            color: #0056b3;
+            margin-bottom: 5px;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 50px;
+        }
+        
+        .page-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .page-btn:hover, .page-btn.active {
+            background-color: #0056b3;
+            color: white;
+            border-color: #0056b3;
+        }
+        
+        .write-review-section {
+            background-color: #0056b3;
+            color: white;
+            text-align: center;
+            padding: 80px 0;
+            border-radius: 10px;
+            margin-top: 80px;
+        }
+        
+        .write-review-section h2 {
+            margin-bottom: 20px;
+            font-weight: 600;
+            font-size: 2.5rem;
+        }
+        
+        .write-review-section p {
+            margin-bottom: 30px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        
+        .write-review-btn {
+            background-color: white;
+            color: #0056b3;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+            text-decoration: none;
+        }
+        
+        .write-review-btn:hover {
+            background-color: #e9ecef;
+            transform: translateY(-3px);
+        }
+
+        /* Review Modal Styles */
+        .review-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .review-modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .review-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            border-bottom: 1px solid #e9ecef;
+            background-color: #f8f9fa;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .review-modal-header h3 {
+            margin: 0;
+            color: #0056b3;
+            font-size: 1.5rem;
+        }
+
+        .close-review-modal {
+            font-size: 28px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close-review-modal:hover {
+            color: #0056b3;
+        }
+
+        .review-modal-body {
+            padding: 30px;
+        }
+
+        .review-modal .form-group {
+            margin-bottom: 20px;
+        }
+
+        .review-modal .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .review-modal .form-group input,
+        .review-modal .form-group select,
+        .review-modal .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .review-modal .form-group input:focus,
+        .review-modal .form-group select:focus,
+        .review-modal .form-group textarea:focus {
+            outline: none;
+            border-color: #0056b3;
+            box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.1);
+        }
+
+        .star-rating {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+            gap: 5px;
+        }
+
+        .star-rating input {
+            display: none;
+        }
+
+        .star-rating label {
+            font-size: 30px;
+            color: #ddd;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .star-rating input:checked ~ label,
+        .star-rating label:hover,
+        .star-rating label:hover ~ label {
+            color: #ffc107;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
+
+        .btn-cancel {
+            padding: 12px 24px;
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-cancel:hover {
+            background-color: #5a6268;
+        }
+
+        .btn-submit {
+            padding: 12px 24px;
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-submit:hover {
+            background-color: #004494;
+        }
+        
+        @media (max-width: 768px) {
+            .overview-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .rating-score {
+                margin-bottom: 30px;
+            }
+            
+            .ratings-hero h1 {
+                font-size: 2.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <h1><i class="fas fa-car-crash"></i> <span class="logo-text">ROAD<span class="logo-highlight">RESCUE</span><span class="logo-number">360</span></span></h1>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="index.html#services">Services</a>
+                <a href="schedule-service.html">Schedule</a>
+                <a href="tracking.html">Track</a>
+                <a href="ratings.html" class="active">Ratings</a>
+                <a href="faq.html">FAQ</a>
+                <a href="about.html">About Us</a>
+                <a href="contact.html">Contact</a>
+            </div>
+            <div class="theme-toggle" id="theme-toggle">
+                <i class="fas fa-sun"></i>
+                <div class="toggle-track">
+                    <div class="toggle-thumb"></div>
+                </div>
+                <i class="fas fa-moon"></i>
+            </div>
+            <div class="mobile-menu">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="ratings-hero">
+        <div class="container">
+            <h1>Customer Ratings & Reviews</h1>
+            <p>See what our customers are saying about their RoadRescue360 experience</p>
+        </div>
+    </section>
+
+    <!-- Ratings Section -->
+    <section class="ratings-section">
+        <div class="container">
+            <div class="ratings-overview">
+                <div class="overview-grid">
+                    <div class="rating-score">
+                        <div class="rating-number">4.8</div>
+                        <div class="rating-stars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                        </div>
+                        <div class="rating-count">Based on 1,247 reviews</div>
+                    </div>
+                    
+                    <div class="rating-breakdown">
+                        <div class="rating-bar">
+                            <div class="rating-label">5 Stars</div>
+                            <div class="rating-progress">
+                                <div class="rating-progress-inner" style="width: 85%;"></div>
+                            </div>
+                            <div class="rating-percentage">85%</div>
+                        </div>
+                        <div class="rating-bar">
+                            <div class="rating-label">4 Stars</div>
+                            <div class="rating-progress">
+                                <div class="rating-progress-inner" style="width: 12%;"></div>
+                            </div>
+                            <div class="rating-percentage">12%</div>
+                        </div>
+                        <div class="rating-bar">
+                            <div class="rating-label">3 Stars</div>
+                            <div class="rating-progress">
+                                <div class="rating-progress-inner" style="width: 2%;"></div>
+                            </div>
+                            <div class="rating-percentage">2%</div>
+                        </div>
+                        <div class="rating-bar">
+                            <div class="rating-label">2 Stars</div>
+                            <div class="rating-progress">
+                                <div class="rating-progress-inner" style="width: 0.5%;"></div>
+                            </div>
+                            <div class="rating-percentage">0.5%</div>
+                        </div>
+                        <div class="rating-bar">
+                            <div class="rating-label">1 Star</div>
+                            <div class="rating-progress">
+                                <div class="rating-progress-inner" style="width: 0.5%;"></div>
+                            </div>
+                            <div class="rating-percentage">0.5%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="review-filters">
+                <button class="filter-btn active">All Reviews</button>
+                <button class="filter-btn">Battery Service</button>
+                <button class="filter-btn">Tire Change</button>
+                <button class="filter-btn">Fuel Delivery</button>
+                <button class="filter-btn">Towing</button>
+                <button class="filter-btn">Lockout Service</button>
+            </div>
+            
+            <div class="review-sort">
+                <div class="sort-label">Sort by:</div>
+                <select class="sort-select">
+                    <option value="recent">Most Recent</option>
+                    <option value="highest">Highest Rating</option>
+                    <option value="lowest">Lowest Rating</option>
+                </select>
+            </div>
+            
+            <div class="reviews-list">
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="reviewer">
+                            <div class="reviewer-avatar">
+                                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="James W.">
+                            </div>
+                            <div class="reviewer-info">
+                                <h3>James W.</h3>
+                                <p>San Francisco, CA</p>
+                            </div>
+                        </div>
+                        <div class="review-rating">
+                            <div class="stars">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="review-date">May 12, 2024</div>
+                        </div>
+                    </div>
+                    <div class="review-content">
+                        <p>I was stranded on the highway with a flat tire during rush hour. Called RoadRescue360 and Michael arrived within 20 minutes, which was impressive considering the traffic. He was professional, friendly, and had my tire changed quickly. The tracking feature was especially helpful - I could see exactly when he would arrive. Couldn't ask for better service!</p>
+                    </div>
+                    <div class="review-tags">
+                        <span class="review-tag">Tire Change</span>
+                        <span class="review-tag">Fast Response</span>
+                        <span class="review-tag">Professional</span>
+                    </div>
+                </div>
+                
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="reviewer">
+                            <div class="reviewer-avatar">
+                                <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Sophia L.">
+                            </div>
+                            <div class="reviewer-info">
+                                <h3>Sophia L.</h3>
+                                <p>Los Angeles, CA</p>
+                            </div>
+                        </div>
+                        <div class="review-rating">
+                            <div class="stars">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="review-date">May 8, 2024</div>
+                        </div>
+                    </div>
+                    <div class="review-content">
+                        <p>As a woman often traveling alone, I was nervous when my car wouldn't start in a parking garage late at night. The RoadRescue360 app made it easy to request help, and I appreciated being able to see the technician's profile and estimated arrival time. Dave arrived quickly, was respectful and explained what was happening with my battery. He had me back on the road in no time. Thank you for making a stressful situation much better!</p>
+                    </div>
+                    <div class="review-tags">
+                        <span class="review-tag">Battery Service</span>
+                        <span class="review-tag">Night Service</span>
+                        <span class="review-tag">Great Communication</span>
+                    </div>
+                    <div class="review-response">
+                        <div class="response-header">Response from RoadRescue360:</div>
+                        <p>Thank you for your kind feedback, Sophia! We're so glad Dave was able to help you quickly and make you feel comfortable. Your safety is our top priority, especially during late hours. We appreciate your trust in our service!</p>
+                    </div>
+                </div>
+                
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="reviewer">
+                            <div class="reviewer-avatar">
+                                <img src="https://randomuser.me/api/portraits/men/56.jpg" alt="Robert T.">
+                            </div>
+                            <div class="reviewer-info">
+                                <h3>Robert T.</h3>
+                                <p>Seattle, WA</p>
+                            </div>
+                        </div>
+                        <div class="review-rating">
+                            <div class="stars">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="far fa-star"></i>
+                            </div>
+                            <div class="review-date">April 30, 2024</div>
+                        </div>
+                    </div>
+                    <div class="review-content">
+                        <p>I locked my keys in my car on the way to an important meeting. Technician arrived within the estimated time window and got my door open quickly. Only giving 4 stars because the initial estimate was 20 minutes but it ended up being closer to 35. Still, good service overall and I'd use them again.</p>
+                    </div>
+                    <div class="review-tags">
+                        <span class="review-tag">Lockout Service</span>
+                        <span class="review-tag">Professional</span>
+                    </div>
+                </div>
+                
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="reviewer">
+                            <div class="reviewer-avatar">
+                                <img src="https://randomuser.me/api/portraits/women/22.jpg" alt="Emily H.">
+                            </div>
+                            <div class="reviewer-info">
+                                <h3>Emily H.</h3>
+                                <p>San Diego, CA</p>
+                            </div>
+                        </div>
+                        <div class="review-rating">
+                            <div class="stars">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="review-date">April 22, 2024</div>
+                        </div>
+                    </div>
+                    <div class="review-content">
+                        <p>Ran out of gas on the freeway (totally my fault for ignoring the warning light!). Used the app to request help and was impressed by how easy it was. The technician brought fuel within 25 minutes and was super friendly. The price was fair too. Definitely recommend this service to anyone in a pinch!</p>
+                    </div>
+                    <div class="review-tags">
+                        <span class="review-tag">Fuel Delivery</span>
+                        <span class="review-tag">Fair Price</span>
+                        <span class="review-tag">Friendly Service</span>
+                    </div>
+                </div>
+                
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="reviewer">
+                            <div class="reviewer-avatar">
+                                <img src="https://randomuser.me/api/portraits/men/77.jpg" alt="Carlos M.">
+                            </div>
+                            <div class="reviewer-info">
+                                <h3>Carlos M.</h3>
+                                <p>Portland, OR</p>
+                            </div>
+                        </div>
+                        <div class="review-rating">
+                            <div class="stars">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                            </div>
+                            <div class="review-date">April 15, 2024</div>
+                        </div>
+                    </div>
+                    <div class="review-content">
+                        <p>My car broke down in a remote area and needed to be towed. I was worried about finding help, but RoadRescue360 came through. The tow truck operator, Steve, was knowledgeable and careful with my vehicle. He even recommended a good mechanic nearby. The app's location sharing made it easy for him to find me despite being off the main road. Great service when I really needed it!</p>
+                    </div>
+                    <div class="review-tags">
+                        <span class="review-tag">Towing</span>
+                        <span class="review-tag">Remote Location</span>
+                        <span class="review-tag">Knowledgeable</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="pagination">
+                <button class="page-btn active">1</button>
+                <button class="page-btn">2</button>
+                <button class="page-btn">3</button>
+                <button class="page-btn">4</button>
+                <button class="page-btn">5</button>
+                <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            
+            <div class="write-review-section">
+                <h2>Share Your Experience</h2>
+                <p>Your feedback helps us improve our service and assists other drivers in making informed decisions. We'd love to hear about your experience with RoadRescue360.</p>
+                <button class="write-review-btn" onclick="openReviewModal()">Write a Review</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Review Modal -->
+    <div id="reviewModal" class="review-modal">
+        <div class="review-modal-content">
+            <div class="review-modal-header">
+                <h3>Write a Review</h3>
+                <span class="close-review-modal" onclick="closeReviewModal()">&times;</span>
+            </div>
+            <div class="review-modal-body">
+                <form id="reviewForm">
+                    <div class="form-group">
+                        <label for="reviewerName">Your Name</label>
+                        <input type="text" id="reviewerName" name="reviewerName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reviewerEmail">Email (optional)</label>
+                        <input type="email" id="reviewerEmail" name="reviewerEmail">
+                    </div>
+                    <div class="form-group">
+                        <label for="serviceType">Service Used</label>
+                        <select id="serviceType" name="serviceType" required>
+                            <option value="">Select a service</option>
+                            <option value="battery-jump">Battery Jump Start</option>
+                            <option value="flat-tire">Flat Tire Change</option>
+                            <option value="fuel-delivery">Fuel Delivery</option>
+                            <option value="lockout">Lockout Service</option>
+                            <option value="towing">Towing Service</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Rating</label>
+                        <div class="star-rating">
+                            <input type="radio" id="star5" name="rating" value="5">
+                            <label for="star5" class="star">★</label>
+                            <input type="radio" id="star4" name="rating" value="4">
+                            <label for="star4" class="star">★</label>
+                            <input type="radio" id="star3" name="rating" value="3">
+                            <label for="star3" class="star">★</label>
+                            <input type="radio" id="star2" name="rating" value="2">
+                            <label for="star2" class="star">★</label>
+                            <input type="radio" id="star1" name="rating" value="1">
+                            <label for="star1" class="star">★</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="reviewText">Your Review</label>
+                        <textarea id="reviewText" name="reviewText" rows="4" placeholder="Tell us about your experience..." required></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-cancel" onclick="closeReviewModal()">Cancel</button>
+                        <button type="submit" class="btn-submit">Submit Review</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Contact Us</h3>
+                    <p><i class="fas fa-phone"></i> Emergency: 1-800-ROAD-HELP</p>
+                    <p><i class="fas fa-envelope"></i> support@roadrescue360.com</p>
+                    <p><i class="fas fa-clock"></i> 24/7 Service Available</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <a href="index.html">Home</a>
+                    <a href="index.html#services">Services</a>
+                    <a href="schedule-service.html">Schedule</a>
+                    <a href="faq.html">FAQ</a>
+                </div>
+                <div class="footer-section">
+                    <h3>Follow Us</h3>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 RoadRescue360. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    <script src="config.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize theme toggle
+            const themeToggle = document.getElementById('theme-toggle');
+            const htmlElement = document.documentElement;
+            
+            // Check for saved theme preference
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                htmlElement.setAttribute('data-theme', savedTheme);
+                if (savedTheme === 'dark') {
+                    themeToggle.setAttribute('data-theme', 'dark');
+                }
+            }
+            
+            // Toggle theme when the button is clicked
+            if (themeToggle) {
+                themeToggle.addEventListener('click', function() {
+                    const currentTheme = htmlElement.getAttribute('data-theme');
+                    let newTheme = 'light';
+                    
+                    if (currentTheme !== 'dark') {
+                        newTheme = 'dark';
+                        themeToggle.setAttribute('data-theme', 'dark');
+                    } else {
+                        themeToggle.removeAttribute('data-theme');
+                    }
+                    
+                    htmlElement.setAttribute('data-theme', newTheme);
+                    localStorage.setItem('theme', newTheme);
+                });
+            }
+            
+            // Filter buttons functionality
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    // In a real app, this would filter the reviews
+                    // For this demo, we'll just show all reviews
+                });
+            });
+            
+            // Pagination functionality
+            const pageButtons = document.querySelectorAll('.page-btn');
+            
+            pageButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    pageButtons.forEach(btn => btn.classList.remove('active'));
+                    
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    // In a real app, this would load the appropriate page of reviews
+                    // For this demo, we'll just show the same reviews
+                });
+            });
+            
+            // Mobile menu functionality
+            const mobileMenu = document.querySelector('.mobile-menu');
+            const navLinks = document.querySelector('.nav-links');
+            
+            if (mobileMenu && navLinks) {
+                mobileMenu.addEventListener('click', function() {
+                    navLinks.classList.toggle('active');
+                });
+            }
+
+            // Review form submission
+            const reviewForm = document.getElementById('reviewForm');
+            if (reviewForm) {
+                reviewForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const formData = new FormData(this);
+                    const reviewData = {
+                        name: formData.get('reviewerName'),
+                        email: formData.get('reviewerEmail'),
+                        service: formData.get('serviceType'),
+                        rating: formData.get('rating'),
+                        text: formData.get('reviewText')
+                    };
+                    
+                    // Simulate form submission
+                    alert('Thank you for your review! Your feedback has been submitted and will be reviewed before being published.');
+                    
+                    // Reset form and close modal
+                    this.reset();
+                    closeReviewModal();
+                });
+            }
+        });
+
+        // Review Modal Functions
+        function openReviewModal() {
+            document.getElementById('reviewModal').style.display = 'block';
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+
+        function closeReviewModal() {
+            document.getElementById('reviewModal').style.display = 'none';
+            document.body.style.overflow = 'auto'; // Restore scrolling
+        }
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            const modal = document.getElementById('reviewModal');
+            if (event.target === modal) {
+                closeReviewModal();
+            }
+        }
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeReviewModal();
+            }
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Your Service - RoadRescue360</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Tracking specific styles */
+        .tracking-hero {
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
+                        url('https://images.unsplash.com/photo-1565043589221-2a6a8e2a1ca8?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 50vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            padding-top: 80px;
+            position: relative;
+        }
+        
+        .tracking-hero .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .tracking-hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+        
+        .tracking-hero p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto;
+            font-weight: 300;
+        }
+        
+        .tracking-section {
+            padding: 80px 0;
+            background-color: #f8f9fa;
+        }
+        
+        .tracking-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .tracking-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+        
+        .tracking-form input {
+            flex-grow: 1;
+            padding: 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .tracking-form input:focus {
+            outline: none;
+            border-color: #0056b3;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+        }
+        
+        .tracking-form button {
+            padding: 15px 30px;
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .tracking-form button:hover {
+            background-color: #004494;
+        }
+        
+        .tracking-details {
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .tracking-details.active {
+            display: block;
+        }
+        
+        .technician-card {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        .technician-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+        
+        .technician-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .technician-info h3 {
+            margin: 0 0 5px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .technician-info p {
+            margin: 0 0 5px;
+            color: #555;
+        }
+        
+        .eta {
+            font-weight: 600;
+            color: #0056b3;
+        }
+        
+        .tracking-map {
+            height: 400px;
+            background-color: #eee;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+        
+        .status-tracker {
+            margin-bottom: 40px;
+        }
+        
+        .status-tracker h3 {
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .status-steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin-bottom: 30px;
+        }
+        
+        .status-steps::before {
+            content: '';
+            position: absolute;
+            top: 24px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #dee2e6;
+            z-index: 1;
+        }
+        
+        .status-step {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            width: 20%;
+        }
+        
+        .step-icon {
+            width: 50px;
+            height: 50px;
+            background-color: white;
+            border: 2px solid #dee2e6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: #aaa;
+            margin: 0 auto 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .status-step.completed .step-icon,
+        .status-step.active .step-icon {
+            background-color: #0056b3;
+            border-color: #0056b3;
+            color: white;
+        }
+        
+        .status-step.completed::after {
+            content: '';
+            position: absolute;
+            top: 24px;
+            left: 50%;
+            width: 100%;
+            height: 2px;
+            background-color: #0056b3;
+            z-index: 1;
+        }
+        
+        .step-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #777;
+        }
+        
+        .status-step.active .step-label {
+            color: #0056b3;
+            font-weight: 600;
+        }
+        
+        .status-details {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .status-details h4 {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .status-details p {
+            margin: 0;
+            color: #555;
+        }
+        
+        .contact-technician {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .contact-btn {
+            flex: 1;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .call-btn {
+            background-color: #0056b3;
+            color: white;
+        }
+        
+        .call-btn:hover {
+            background-color: #004494;
+        }
+        
+        .message-btn {
+            background-color: white;
+            color: #0056b3;
+            border: 1px solid #0056b3;
+        }
+        
+        .message-btn:hover {
+            background-color: #f0f7ff;
+        }
+        
+        @media (max-width: 768px) {
+            .tracking-form {
+                flex-direction: column;
+            }
+            
+            .status-steps {
+                overflow-x: auto;
+                padding-bottom: 20px;
+            }
+            
+            .status-step {
+                min-width: 120px;
+            }
+            
+            .tracking-hero h1 {
+                font-size: 2.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <h1><i class="fas fa-car-crash"></i> <span class="logo-text">ROAD<span class="logo-highlight">RESCUE</span><span class="logo-number">360</span></span></h1>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="index.html#services">Services</a>
+                <a href="schedule-service.html">Schedule</a>
+                <a href="tracking.html" class="active">Track</a>
+                <a href="faq.html">FAQ</a>
+                <a href="about.html">About Us</a>
+                <a href="contact.html">Contact</a>
+            </div>
+            <div class="theme-toggle" id="theme-toggle">
+                <i class="fas fa-sun"></i>
+                <div class="toggle-track">
+                    <div class="toggle-thumb"></div>
+                </div>
+                <i class="fas fa-moon"></i>
+            </div>
+            <div class="mobile-menu">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="tracking-hero">
+        <div class="container">
+            <h1>Track Your Service</h1>
+            <p>Real-time updates on your roadside assistance request</p>
+        </div>
+    </section>
+
+    <!-- Tracking Section -->
+    <section class="tracking-section">
+        <div class="container">
+            <div class="tracking-container">
+                <h2>Enter Your Tracking Information</h2>
+                <form class="tracking-form" id="tracking-form">
+                    <input type="text" id="tracking-number" placeholder="Enter tracking number or phone number" required>
+                    <button type="submit">Track Now</button>
+                </form>
+                
+                <div class="tracking-details" id="tracking-details">
+                    <div class="technician-card">
+                        <div class="technician-avatar">
+                            <img src="https://images.unsplash.com/photo-1566492031773-4f4e44671857?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Technician">
+                        </div>
+                        <div class="technician-info">
+                            <h3>Michael Rodriguez</h3>
+                            <p>Expert Technician • 4.9 ★</p>
+                            <p>Vehicle: White Ford Transit #247</p>
+                            <p class="eta">ETA: 12 minutes (3.2 miles away)</p>
+                        </div>
+                    </div>
+                    
+                    <div class="tracking-map" id="map">
+                        <!-- Map will be loaded here -->
+                    </div>
+                    
+                    <div class="status-tracker">
+                        <h3>Service Status</h3>
+                        <div class="status-steps">
+                            <div class="status-step completed">
+                                <div class="step-icon">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="step-label">Request Received</div>
+                            </div>
+                            <div class="status-step completed">
+                                <div class="step-icon">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="step-label">Technician Assigned</div>
+                            </div>
+                            <div class="status-step active">
+                                <div class="step-icon">
+                                    <i class="fas fa-truck"></i>
+                                </div>
+                                <div class="step-label">On the Way</div>
+                            </div>
+                            <div class="status-step">
+                                <div class="step-icon">
+                                    <i class="fas fa-tools"></i>
+                                </div>
+                                <div class="step-label">Service in Progress</div>
+                            </div>
+                            <div class="status-step">
+                                <div class="step-icon">
+                                    <i class="fas fa-flag-checkered"></i>
+                                </div>
+                                <div class="step-label">Completed</div>
+                            </div>
+                        </div>
+                        
+                        <div class="status-details">
+                            <h4>Current Status: Technician En Route</h4>
+                            <p>Your technician, Michael, is on the way to your location. Estimated arrival time is 8:45 AM (about 12 minutes). Michael specializes in battery service and tire changes with over 500 successful jobs.</p>
+                        </div>
+                        
+                        <div class="contact-technician">
+                            <div class="contact-btn call-btn">
+                                <i class="fas fa-phone"></i> Call Technician
+                            </div>
+                            <div class="contact-btn message-btn">
+                                <i class="fas fa-comment"></i> Send Message
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="service-details">
+                        <h3>Service Details</h3>
+                        <table class="details-table">
+                            <tr>
+                                <td><strong>Service Type:</strong></td>
+                                <td>Battery Jump-Start</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Request Time:</strong></td>
+                                <td>Today, 8:15 AM</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Location:</strong></td>
+                                <td>123 Main Street, San Francisco, CA</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Vehicle:</strong></td>
+                                <td>2019 Honda Civic, Blue</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Tracking Number:</strong></td>
+                                <td>RR360-78945</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Contact Us</h3>
+                    <p><i class="fas fa-phone"></i> Emergency: 1-800-ROAD-HELP</p>
+                    <p><i class="fas fa-envelope"></i> support@roadrescue360.com</p>
+                    <p><i class="fas fa-clock"></i> 24/7 Service Available</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <a href="index.html">Home</a>
+                    <a href="index.html#services">Services</a>
+                    <a href="schedule-service.html">Schedule</a>
+                    <a href="faq.html">FAQ</a>
+                </div>
+                <div class="footer-section">
+                    <h3>Follow Us</h3>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 RoadRescue360. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    <script src="config.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize theme toggle
+            const themeToggle = document.getElementById('theme-toggle');
+            const htmlElement = document.documentElement;
+            
+            // Check for saved theme preference
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                htmlElement.setAttribute('data-theme', savedTheme);
+                if (savedTheme === 'dark') {
+                    themeToggle.setAttribute('data-theme', 'dark');
+                }
+            }
+            
+            // Toggle theme when the button is clicked
+            if (themeToggle) {
+                themeToggle.addEventListener('click', function() {
+                    const currentTheme = htmlElement.getAttribute('data-theme');
+                    let newTheme = 'light';
+                    
+                    if (currentTheme !== 'dark') {
+                        newTheme = 'dark';
+                        themeToggle.setAttribute('data-theme', 'dark');
+                    } else {
+                        themeToggle.removeAttribute('data-theme');
+                    }
+                    
+                    htmlElement.setAttribute('data-theme', newTheme);
+                    localStorage.setItem('theme', newTheme);
+                });
+            }
+            
+            // Demo tracking function
+            const trackingForm = document.getElementById('tracking-form');
+            const trackingDetails = document.getElementById('tracking-details');
+            
+            if (trackingForm && trackingDetails) {
+                trackingForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    // Show tracking details (demo only, in a real app would fetch data from server)
+                    trackingDetails.classList.add('active');
+                    
+                    // Initialize map (simplified demo)
+                    initMap();
+                });
+            }
+            
+            // Mobile menu functionality
+            const mobileMenu = document.querySelector('.mobile-menu');
+            const navLinks = document.querySelector('.nav-links');
+            
+            if (mobileMenu && navLinks) {
+                mobileMenu.addEventListener('click', function() {
+                    navLinks.classList.toggle('active');
+                });
+            }
+        });
+        
+        // Demo map initialization (would use Google Maps or similar in a real app)
+        function initMap() {
+            const mapElement = document.getElementById('map');
+            
+            if (mapElement) {
+                // Simplified map representation for demo
+                mapElement.innerHTML = `
+                    <div style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background-color: #e9ecef; color: #333; font-size: 14px; text-align: center;">
+                        <div>
+                            <p style="margin-bottom: 15px;"><i class="fas fa-map-marker-alt" style="font-size: 24px; color: #0056b3; margin-bottom: 10px;"></i></p>
+                            <h3 style="margin-bottom: 10px;">Live Map</h3>
+                            <p>This is where the live tracking map would appear, showing the real-time location of your technician.</p>
+                            <p style="margin-top: 10px; color: #0056b3;">Technician is 3.2 miles away, traveling on Highway 101</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule Service - RoadRescue360</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Page specific styles */
+        .schedule-hero {
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
+                         url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            height: 70vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            padding-top: 80px;
+            position: relative;
+        }
+        
+        .schedule-hero .hero-content {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .schedule-hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+        
+        .schedule-hero p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto;
+            font-weight: 300;
+        }
+        
+        .schedule-form-section {
+            background-color: #f8f9fa;
+            padding: 60px 0;
+        }
+        
+        .schedule-form-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .schedule-form-container h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #0056b3;
+            font-weight: 600;
+        }
+        
+        .schedule-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-gap: 20px;
+        }
+        
+        .form-full-width {
+            grid-column: 1 / 3;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #0056b3;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+            outline: none;
+        }
+        
+        .location-container {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .location-container input {
+            flex-grow: 1;
+        }
+        
+        .location-btn {
+            flex-shrink: 0;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .location-btn:hover {
+            background-color: #004494;
+        }
+        
+        .schedule-submit {
+            margin-top: 20px;
+            padding: 15px 30px;
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+        }
+        
+        .schedule-submit:hover {
+            background-color: #004494;
+        }
+        
+        .service-benefits {
+            margin-top: 60px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+        
+        .benefit-item {
+            text-align: center;
+            padding: 30px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+        }
+        
+        .benefit-item:hover {
+            transform: translateY(-5px);
+        }
+        
+        .benefit-item i {
+            font-size: 3rem;
+            color: #0056b3;
+            margin-bottom: 20px;
+        }
+        
+        .benefit-item h3 {
+            margin-bottom: 15px;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .schedule-options {
+            margin: 0 auto 40px;
+            max-width: 600px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        
+        .schedule-option {
+            background-color: white;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 15px 20px;
+            cursor: pointer;
+            text-align: center;
+            flex: 1;
+            transition: all 0.3s ease;
+        }
+        
+        .schedule-option:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .schedule-option.selected {
+            border-color: #0056b3;
+            background-color: rgba(0, 123, 255, 0.05);
+        }
+        
+        .schedule-option i {
+            font-size: 2rem;
+            color: #0056b3;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        @media (max-width: 768px) {
+            .schedule-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-full-width {
+                grid-column: 1;
+            }
+            
+            .schedule-form-container {
+                padding: 30px 20px;
+            }
+            
+            .schedule-options {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .schedule-hero h1 {
+                font-size: 2.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <h1><i class="fas fa-car-crash"></i> <span class="logo-text">ROAD<span class="logo-highlight">RESCUE</span><span class="logo-number">360</span></span></h1>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="index.html#services">Services</a>
+                <a href="schedule-service.html" class="active">Schedule</a>
+                <a href="faq.html">FAQ</a>
+                <a href="index.html#about">About Us</a>
+                <a href="index.html#contact">Contact</a>
+            </div>
+            <div class="theme-toggle" id="theme-toggle">
+                <i class="fas fa-sun"></i>
+                <div class="toggle-track">
+                    <div class="toggle-thumb"></div>
+                </div>
+                <i class="fas fa-moon"></i>
+            </div>
+            <div class="mobile-menu">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="schedule-hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Schedule Roadside Assistance</h1>
+                <p>Plan ahead and book your service at a time that works for you</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Schedule Form Section -->
+    <section class="schedule-form-section">
+        <div class="container">
+            <div class="schedule-options">
+                <div class="schedule-option selected" data-schedule="now">
+                    <i class="fas fa-bolt"></i>
+                    <h3>Right Now</h3>
+                    <p>Emergency service</p>
+                </div>
+                <div class="schedule-option" data-schedule="today">
+                    <i class="fas fa-clock"></i>
+                    <h3>Later Today</h3>
+                    <p>Same-day service</p>
+                </div>
+                <div class="schedule-option" data-schedule="future">
+                    <i class="fas fa-calendar-alt"></i>
+                    <h3>Future Date</h3>
+                    <p>Plan ahead</p>
+                </div>
+            </div>
+            
+            <div class="schedule-form-container">
+                <h2>Enter Your Service Details</h2>
+                <form class="schedule-form" id="schedule-service-form">
+                    <div class="form-group">
+                        <label for="schedule-service-type">Service Type</label>
+                        <select id="schedule-service-type" required>
+                            <option value="">Select service type</option>
+                            <option value="battery">Battery Service</option>
+                            <option value="tire">Tire Change</option>
+                            <option value="fuel">Fuel Delivery</option>
+                            <option value="lockout">Lockout Service</option>
+                            <option value="towing">Towing Service</option>
+                            <option value="mechanical">Mechanical Help</option>
+                            <option value="mobile-repair">Mobile Repairs</option>
+                            <option value="accident">Accident Recovery</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group schedule-time-fields" style="display: none;">
+                        <label for="schedule-service-time">Preferred Time</label>
+                        <select id="schedule-service-time" required>
+                            <option value="">Select time</option>
+                            <option value="morning">Morning (8AM - 12PM)</option>
+                            <option value="afternoon">Afternoon (12PM - 4PM)</option>
+                            <option value="evening">Evening (4PM - 8PM)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group schedule-date-fields" style="display: none;">
+                        <label for="schedule-service-date">Preferred Date</label>
+                        <input type="date" id="schedule-service-date">
+                    </div>
+                    
+                    <div class="form-group schedule-time-custom" style="display: none;">
+                        <label for="schedule-service-time-custom">Specific Time</label>
+                        <input type="time" id="schedule-service-time-custom">
+                    </div>
+                    
+                    <div class="form-group form-full-width">
+                        <label for="schedule-service-location">Service Location</label>
+                        <div class="location-container">
+                            <input type="text" id="schedule-service-location" placeholder="Enter your service location" required>
+                            <button type="button" id="location-btn" class="location-btn"><i class="fas fa-map-marker-alt"></i></button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="schedule-service-vehicle">Vehicle Details</label>
+                        <input type="text" id="schedule-service-vehicle" placeholder="Year, Make, Model, Color" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="schedule-service-name">Your Name</label>
+                        <input type="text" id="schedule-service-name" placeholder="Full name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="schedule-service-phone">Contact Number</label>
+                        <input type="tel" id="schedule-service-phone" placeholder="Your phone number" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="schedule-service-email">Email Address</label>
+                        <input type="email" id="schedule-service-email" placeholder="Your email address">
+                    </div>
+                    
+                    <div class="form-group form-full-width">
+                        <label for="schedule-service-notes">Additional Notes</label>
+                        <textarea id="schedule-service-notes" placeholder="Any specific details about your vehicle or service needs" rows="4"></textarea>
+                    </div>
+                    
+                    <div class="form-group form-full-width">
+                        <button type="submit" class="submit-button schedule-submit"><i class="fas fa-calendar-check"></i> Schedule Service</button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="service-benefits">
+                <div class="benefit-item">
+                    <i class="fas fa-calendar-check"></i>
+                    <h3>Flexible Scheduling</h3>
+                    <p>Book services at your convenience, whether it's right now or next week.</p>
+                </div>
+                <div class="benefit-item">
+                    <i class="fas fa-user-clock"></i>
+                    <h3>Priority Service</h3>
+                    <p>Scheduled services receive priority assignment to our best technicians.</p>
+                </div>
+                <div class="benefit-item">
+                    <i class="fas fa-bell"></i>
+                    <h3>Timely Reminders</h3>
+                    <p>Receive confirmation emails and text message reminders before your appointment.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Contact Us</h3>
+                    <p><i class="fas fa-phone"></i> Emergency: 1-800-ROAD-HELP</p>
+                    <p><i class="fas fa-envelope"></i> support@roadrescue360.com</p>
+                    <p><i class="fas fa-clock"></i> 24/7 Service Available</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <a href="index.html">Home</a>
+                    <a href="index.html#services">Services</a>
+                    <a href="schedule-service.html">Schedule</a>
+                    <a href="faq.html">FAQ</a>
+                </div>
+                <div class="footer-section">
+                    <h3>Follow Us</h3>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 RoadRescue360. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    <script src="config.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize theme toggle
+            const themeToggle = document.getElementById('theme-toggle');
+            const htmlElement = document.documentElement;
+            
+            // Check for saved theme preference
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                htmlElement.setAttribute('data-theme', savedTheme);
+                if (savedTheme === 'dark') {
+                    themeToggle.setAttribute('data-theme', 'dark');
+                }
+            }
+            
+            // Toggle theme when the button is clicked
+            if (themeToggle) {
+                themeToggle.addEventListener('click', function() {
+                    const currentTheme = htmlElement.getAttribute('data-theme');
+                    let newTheme = 'light';
+                    
+                    if (currentTheme !== 'dark') {
+                        newTheme = 'dark';
+                        themeToggle.setAttribute('data-theme', 'dark');
+                    } else {
+                        themeToggle.removeAttribute('data-theme');
+                    }
+                    
+                    htmlElement.setAttribute('data-theme', newTheme);
+                    localStorage.setItem('theme', newTheme);
+                });
+            }
+            
+            // Schedule options functionality
+            const scheduleOptions = document.querySelectorAll('.schedule-option');
+            const timeFields = document.querySelector('.schedule-time-fields');
+            const dateFields = document.querySelector('.schedule-date-fields');
+            const timeCustomFields = document.querySelector('.schedule-time-custom');
+            
+            scheduleOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // Remove selected class from all options
+                    scheduleOptions.forEach(opt => opt.classList.remove('selected'));
+                    
+                    // Add selected class to clicked option
+                    this.classList.add('selected');
+                    
+                    // Get schedule type
+                    const scheduleType = this.getAttribute('data-schedule');
+                    
+                    // Show/hide appropriate fields based on selected option
+                    switch(scheduleType) {
+                        case 'now':
+                            timeFields.style.display = 'none';
+                            dateFields.style.display = 'none';
+                            timeCustomFields.style.display = 'none';
+                            break;
+                        case 'today':
+                            timeFields.style.display = 'block';
+                            dateFields.style.display = 'none';
+                            timeCustomFields.style.display = 'block';
+                            break;
+                        case 'future':
+                            timeFields.style.display = 'block';
+                            dateFields.style.display = 'block';
+                            timeCustomFields.style.display = 'block';
+                            break;
+                    }
+                });
+            });
+            
+            // Get current location functionality
+            const locationBtn = document.getElementById('location-btn');
+            const locationInput = document.getElementById('schedule-service-location');
+            
+            if (locationBtn && locationInput) {
+                locationBtn.addEventListener('click', function() {
+                    if (navigator.geolocation) {
+                        locationBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                        
+                        navigator.geolocation.getCurrentPosition(
+                            function(position) {
+                                // For a real application, you would use reverse geocoding here
+                                // to get the actual address, but for this demo we'll just use coords
+                                locationInput.value = `Lat: ${position.coords.latitude.toFixed(6)}, Long: ${position.coords.longitude.toFixed(6)}`;
+                                locationBtn.innerHTML = '<i class="fas fa-check"></i>';
+                                
+                                setTimeout(() => {
+                                    locationBtn.innerHTML = '<i class="fas fa-map-marker-alt"></i>';
+                                }, 2000);
+                            },
+                            function(error) {
+                                locationBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+                                alert("Could not get your location. Please enter it manually.");
+                                
+                                setTimeout(() => {
+                                    locationBtn.innerHTML = '<i class="fas fa-map-marker-alt"></i>';
+                                }, 2000);
+                            }
+                        );
+                    } else {
+                        alert("Geolocation is not supported by your browser. Please enter your location manually.");
+                    }
+                });
+            }
+            
+            // Set minimum date for future scheduling
+            const dateInput = document.getElementById('schedule-service-date');
+            if (dateInput) {
+                const today = new Date();
+                const tomorrow = new Date(today);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                dateInput.min = tomorrow.toISOString().split('T')[0];
+            }
+            
+            // Form submission
+            const scheduleForm = document.getElementById('schedule-service-form');
+            
+            if (scheduleForm) {
+                scheduleForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Get selected schedule option
+                    const selectedOption = document.querySelector('.schedule-option.selected');
+                    const scheduleType = selectedOption ? selectedOption.getAttribute('data-schedule') : 'now';
+                    
+                    // Get form values
+                    const serviceType = document.getElementById('schedule-service-type').value;
+                    const serviceLocation = document.getElementById('schedule-service-location').value;
+                    const vehicleDetails = document.getElementById('schedule-service-vehicle').value;
+                    const name = document.getElementById('schedule-service-name').value;
+                    const phone = document.getElementById('schedule-service-phone').value;
+                    const email = document.getElementById('schedule-service-email').value;
+                    const notes = document.getElementById('schedule-service-notes').value;
+                    
+                    // Get time and date values based on schedule type
+                    let preferredTime = '';
+                    let preferredDate = '';
+                    
+                    if (scheduleType === 'today') {
+                        preferredTime = document.getElementById('schedule-service-time').value;
+                        const customTime = document.getElementById('schedule-service-time-custom').value;
+                        if (customTime) preferredTime = customTime;
+                    } else if (scheduleType === 'future') {
+                        preferredTime = document.getElementById('schedule-service-time').value;
+                        preferredDate = document.getElementById('schedule-service-date').value;
+                        const customTime = document.getElementById('schedule-service-time-custom').value;
+                        if (customTime) preferredTime = customTime;
+                    }
+                    
+                    // Enhanced validation
+                    if (!serviceType || !serviceLocation || !vehicleDetails || !name || !phone) {
+                        alert('Please fill out all required fields.');
+                        return;
+                    }
+                    
+                    // Validate time fields for today and future scheduling
+                    if (scheduleType === 'today' && !preferredTime) {
+                        alert('Please select a preferred time for today.');
+                        return;
+                    }
+                    
+                    if (scheduleType === 'future' && (!preferredDate || !preferredTime)) {
+                        alert('Please select both date and time for future scheduling.');
+                        return;
+                    }
+                    
+                    // Validate future date is not in the past
+                    if (scheduleType === 'future' && preferredDate) {
+                        const selectedDate = new Date(preferredDate);
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+                        
+                        if (selectedDate < today) {
+                            alert('Please select a future date.');
+                            return;
+                        }
+                    }
+                    
+                // Create booking data
+                // Normalize service key
+                function normalizeServiceKey(serviceType) {
+                    const map = {
+                        "Battery Service": "battery",
+                        "Battery Jump Start": "battery",
+                        "Tire Change": "tire",
+                        "Flat Tire Change": "tire",
+                        "Fuel Delivery": "fuel",
+                        "Lockout Service": "lockout",
+                        "Towing Service": "towing",
+                        "Mobile Mechanic": "mechanic",
+                        "Mechanical Help": "mechanic",
+                        "Mobile Repairs": "mechanic",
+                        "Accident Recovery": "towing"
+                    };
+                    return map[serviceType] || serviceType.toLowerCase().trim();
+                }
+
+                const normalizedService = normalizeServiceKey(serviceType);
+
+                const bookingData = {
+                    service: normalizedService,     // ✅ consistent key
+                    serviceType: serviceType,
+                    scheduleType: scheduleType,
+                    preferredTime: preferredTime,
+                    preferredDate: preferredDate,
+                    location: serviceLocation,
+                    vehicleDetails: vehicleDetails,
+                    name: name,
+                    phone: phone,
+                    email: email,
+                    notes: notes,
+                    timestamp: new Date().toISOString(),
+                    trackingId: 'RR-' + Math.floor(Math.random() * 1000000),
+                    serviceTitle: serviceType,
+                    serviceIcon: getServiceIcon(normalizedService),
+                    serviceDescription: getServiceDescription(normalizedService),
+                    servicePricing: getServicePricing(normalizedService)
+                };
+                                    
+                    // Store booking data in localStorage for track page
+                    localStorage.setItem('roadRescueBooking', JSON.stringify(bookingData));
+                    
+                    // Log booking data (in real app, send to server)
+                    console.log('Scheduled Service Booking:', bookingData);
+                    
+                    // Show success message with booking details
+                    const scheduleTypeText = {
+                        'now': 'immediately',
+                        'today': `today at ${preferredTime || 'your preferred time'}`,
+                        'future': `on ${preferredDate} at ${preferredTime || 'your preferred time'}`
+                    };
+                    
+                    const successMessage = `Thank you, ${name}! Your ${serviceType} service has been scheduled ${scheduleTypeText[scheduleType]}. We will contact you at ${phone} to confirm.`;
+                    
+                    // Show success message
+                    alert(successMessage);
+                    
+                    // Redirect to tracking page after a short delay
+                    setTimeout(() => {
+                        window.location.href = 'track-service.html';
+                    }, 2000);
+                    
+                    // Reset form
+                    scheduleForm.reset();
+                });
+            }
+            
+            // Mobile menu functionality
+            const mobileMenu = document.querySelector('.mobile-menu');
+            const navLinks = document.querySelector('.nav-links');
+            
+            if (mobileMenu && navLinks) {
+                mobileMenu.addEventListener('click', function() {
+                    navLinks.classList.toggle('active');
+                });
+            }
+            
+            // Helper functions to get service information
+            function getServiceIcon(service) {
+                const icons = {
+                    'battery': '<i class="fas fa-car-battery"></i>',
+                    'fuel': '<i class="fas fa-gas-pump"></i>',
+                    'lockout': '<i class="fas fa-key"></i>',
+                    'towing': '<i class="fas fa-truck-pickup"></i>',
+                    'tire': '<i class="fas fa-tools"></i>',
+                    'mechanic': '<i class="fas fa-wrench"></i>'
+                };
+                return icons[service] || '<i class="fas fa-car"></i>';
+            }
+            
+            function getServiceDescription(service) {
+                const descriptions = {
+                    'battery': 'Professional battery jump start service with commercial-grade equipment.',
+                    'fuel': 'Emergency fuel delivery service to get you back on the road.',
+                    'lockout': 'Professional lockout service using specialized tools to safely regain access.',
+                    'towing': 'Reliable towing service to transport your vehicle safely.',
+                    'tire': 'Mobile tire change service with professional equipment.',
+                    'mechanic': 'On-site mechanical assistance for various vehicle issues.'
+                };
+                return descriptions[service] || 'Professional roadside assistance service.';
+            }
+            
+            function getServicePricing(service) {
+                const pricing = {
+                    'battery': 'Starting at ₹500',
+                    'fuel': 'Starting at ₹800',
+                    'lockout': 'Starting at ₹600',
+                    'towing': 'Starting at ₹1500',
+                    'tire': 'Starting at ₹700',
+                    'mechanic': 'Starting at ₹1000'
+                };
+                return pricing[service] || 'Contact for pricing';
+            }
+        });
+    </script>
+</body>
+</html> 

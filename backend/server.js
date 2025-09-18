@@ -25,7 +25,7 @@ app.use(cors());
 app.use(express.json());
 
 // ✅ Serve static files from the frontend directory
-app.use(express.static(path.join(__dirname, '../frontend/public')));
+app.use(express.static(path.join(__dirname, '../frontend')));
 // ✅ Serve uploaded files
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) { fs.mkdirSync(uploadsDir, { recursive: true }); }
@@ -82,6 +82,14 @@ app.use('/api/payments', require('./routes/payments'));
 app.use('/api/tracking', require('./routes/tracking'));
 app.use('/api/md', require('./routes/md'));
 
+// ✅ Serve frontend (HTML/JS/CSS) for non-API routes
+app.get('*', (req, res) => {
+  if (!req.path.startsWith('/api')) {
+    res.sendFile(path.join(__dirname, '../frontend/index.html')); 
+    // 👆 if your main frontend file is "frontend/index.html"
+  }
+});
+
 // 404 handler for unknown API routes -> return JSON, not HTML
 app.use('/api', (req, res) => {
   res.status(404).json({ error: 'Not found' });
@@ -96,5 +104,5 @@ app.use((err, req, res, next) => {
 // Start server
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on http://0.0.0.0:${PORT}`);
 });

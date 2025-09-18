@@ -1,13 +1,13 @@
 /**
  * Schedule Service Button Functionality for RoadRescue360
  */
-document.addEventListener('DOMContentLoaded', function() {
-    // Create Schedule Modal
-    function createScheduleModal() {
-        const modal = document.createElement('div');
-        modal.className = 'modal';
-        modal.id = 'schedule-modal';
-        modal.innerHTML = `
+document.addEventListener("DOMContentLoaded", function () {
+  // Create Schedule Modal
+  function createScheduleModal() {
+    const modal = document.createElement("div");
+    modal.className = "modal";
+    modal.id = "schedule-modal";
+    modal.innerHTML = `
             <div class="modal-content">
                 <span class="close-modal">&times;</span>
                 <h2>Schedule a Service</h2>
@@ -33,7 +33,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                     <div class="form-group">
                         <label for="schedule-date">Preferred Date</label>
-                        <input type="date" id="schedule-date" required min="${new Date().toISOString().split('T')[0]}">
+                        <input type="date" id="schedule-date" required min="${
+                          new Date().toISOString().split("T")[0]
+                        }">
                     </div>
                     <div class="form-group">
                         <label for="schedule-time">Preferred Time</label>
@@ -57,131 +59,157 @@ document.addEventListener('DOMContentLoaded', function() {
                 </form>
             </div>
         `;
-        document.body.appendChild(modal);
+    document.body.appendChild(modal);
 
-        return modal;
-    }
+    return modal;
+  }
 
-    // Add schedule button functionality
-    const scheduleBtn = document.querySelector('.cta-button.secondary');
-    
-    if (scheduleBtn) {
-        scheduleBtn.addEventListener('click', function() {
-            // Get or create modal
-            let scheduleModal = document.getElementById('schedule-modal');
-            if (!scheduleModal) {
-                scheduleModal = createScheduleModal();
+  // Add schedule button functionality
+  const scheduleBtn = document.querySelector(".cta-button.secondary");
+
+  if (scheduleBtn) {
+    scheduleBtn.addEventListener("click", function () {
+      // Get or create modal
+      let scheduleModal = document.getElementById("schedule-modal");
+      if (!scheduleModal) {
+        scheduleModal = createScheduleModal();
+      }
+
+      // Show modal
+      scheduleModal.style.display = "block";
+
+      // Close button functionality
+      const closeBtn = scheduleModal.querySelector(".close-modal");
+      closeBtn.addEventListener("click", function () {
+        scheduleModal.style.display = "none";
+      });
+
+      // Click outside to close
+      window.addEventListener("click", function (e) {
+        if (e.target === scheduleModal) {
+          scheduleModal.style.display = "none";
+        }
+      });
+
+      // Use current location button
+      const useLocationBtn = scheduleModal.querySelector(
+        ".use-current-location"
+      );
+      useLocationBtn.addEventListener("click", function () {
+        this.disabled = true;
+        this.innerHTML =
+          '<i class="fas fa-spinner fa-spin"></i> Getting Location...';
+
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const locationInput =
+                document.getElementById("schedule-location");
+              if (locationInput) {
+                locationInput.value = `${position.coords.latitude}, ${position.coords.longitude}`;
+              }
+              this.innerHTML =
+                '<i class="fas fa-location-arrow"></i> Use Current Location';
+              this.disabled = false;
+            },
+            (error) => {
+              console.error("Geolocation error:", error);
+              alert(
+                "Error getting location. Please enter your location manually."
+              );
+              this.innerHTML =
+                '<i class="fas fa-location-arrow"></i> Use Current Location';
+              this.disabled = false;
             }
-            
-            // Show modal
-            scheduleModal.style.display = 'block';
-            
-            // Close button functionality
-            const closeBtn = scheduleModal.querySelector('.close-modal');
-            closeBtn.addEventListener('click', function() {
-                scheduleModal.style.display = 'none';
-            });
-            
-            // Click outside to close
-            window.addEventListener('click', function(e) {
-                if (e.target === scheduleModal) {
-                    scheduleModal.style.display = 'none';
-                }
-            });
-            
-            // Use current location button
-            const useLocationBtn = scheduleModal.querySelector('.use-current-location');
-            useLocationBtn.addEventListener('click', function() {
-                this.disabled = true;
-                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Getting Location...';
-                
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(
-                        (position) => {
-                            const locationInput = document.getElementById('schedule-location');
-                            if (locationInput) {
-                                locationInput.value = `${position.coords.latitude}, ${position.coords.longitude}`;
-                            }
-                            this.innerHTML = '<i class="fas fa-location-arrow"></i> Use Current Location';
-                            this.disabled = false;
-                        },
-                        (error) => {
-                            console.error('Geolocation error:', error);
-                            alert('Error getting location. Please enter your location manually.');
-                            this.innerHTML = '<i class="fas fa-location-arrow"></i> Use Current Location';
-                            this.disabled = false;
-                        }
-                    );
-                } else {
-                    alert('Geolocation is not supported by your browser');
-                    this.innerHTML = '<i class="fas fa-location-arrow"></i> Use Current Location';
-                    this.disabled = false;
-                }
-            });
-            
-            // Form submission
-            const scheduleForm = document.getElementById('schedule-form');
-            scheduleForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const submitBtn = this.querySelector('.submit-button');
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Scheduling...';
+          );
+        } else {
+          alert("Geolocation is not supported by your browser");
+          this.innerHTML =
+            '<i class="fas fa-location-arrow"></i> Use Current Location';
+          this.disabled = false;
+        }
+      });
 
-                try {
-                    const locationInput = document.getElementById('schedule-location').value;
-                    const serviceType = document.getElementById('schedule-service').value;
-                    const notes = document.getElementById('schedule-notes').value;
-                    const phone = document.getElementById('schedule-phone').value;
-                    const vehicleDetails = { notes, phone };
+      // Form submission
+      const scheduleForm = document.getElementById("schedule-form");
+      scheduleForm.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const submitBtn = this.querySelector(".submit-button");
+        submitBtn.disabled = true;
+        submitBtn.innerHTML =
+          '<i class="fas fa-spinner fa-spin"></i> Scheduling...';
 
-                    const body = {
-                        type: serviceType,  // ✅ ensures correct service type
-                        location: {
-                            type: "Point",
-                            coordinates: locationInput.split(',').map(Number)
-                        },
-                        address: locationInput,
-                        vehicleDetails,
-                        description: notes
-                    };
+        try {
+          const locationInput =
+            document.getElementById("schedule-location").value;
+          const serviceType = document.getElementById("schedule-service").value;
+          const notes = document.getElementById("schedule-notes").value;
+          const phone = document.getElementById("schedule-phone").value;
+          const vehicleDetails = { notes, phone };
 
-                    const response = await fetch('${BASE_URL}/api/services', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': 'Bearer ' + localStorage.getItem('token') // if auth is required
-                        },
-                        body: JSON.stringify(body)
-                    });
+          // Map frontend service types to backend expected values
+          const serviceTypeMapping = {
+            battery: "battery",
+            tire: "tire",
+            maintenance: "mobile_repair",
+            inspection: "mobile_repair",
+            repair: "mechanical",
+            other: "mobile_repair",
+          };
 
-                    if (!response.ok) {
-                        throw new Error('Failed to schedule service');
-                    }
+          const mappedServiceType =
+            serviceTypeMapping[serviceType] || serviceType;
 
-                    const data = await response.json();
-                    console.log('Service booked:', data);
+          const body = {
+            type: mappedServiceType, // ✅ ensures correct service type
+            location: {
+              type: "Point",
+              coordinates: locationInput.split(",").map(Number),
+            },
+            address: locationInput,
+            vehicleDetails,
+            description: notes,
+          };
 
-                    const successMsg = document.createElement('div');
-                    successMsg.className = 'success-message';
-                    successMsg.innerHTML = '<i class="fas fa-check-circle"></i> Your service has been scheduled!';
-                    document.body.appendChild(successMsg);
+          const response = await fetch(`${BASE_URL}/api/services`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + localStorage.getItem("token"), // if auth is required
+            },
+            body: JSON.stringify(body),
+          });
 
-                    scheduleForm.reset();
-                    scheduleModal.style.display = 'none';
+          if (!response.ok) {
+            throw new Error("Failed to schedule service");
+          }
 
-                    setTimeout(() => {
-                        document.body.removeChild(successMsg);
-                    }, 5000);
-                } catch (error) {
-                    console.error('Error booking service:', error);
-                    alert('Something went wrong while scheduling the service.');
-                } finally {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="fas fa-calendar-check"></i> Schedule Service';
-                }
-            });
-        });
-    }
-    
-    console.log('Schedule service functionality initialized');
+          const data = await response.json();
+          console.log("Service booked:", data);
+
+          const successMsg = document.createElement("div");
+          successMsg.className = "success-message";
+          successMsg.innerHTML =
+            '<i class="fas fa-check-circle"></i> Your service has been scheduled!';
+          document.body.appendChild(successMsg);
+
+          scheduleForm.reset();
+          scheduleModal.style.display = "none";
+
+          setTimeout(() => {
+            document.body.removeChild(successMsg);
+          }, 5000);
+        } catch (error) {
+          console.error("Error booking service:", error);
+          alert("Something went wrong while scheduling the service.");
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML =
+            '<i class="fas fa-calendar-check"></i> Schedule Service';
+        }
+      });
+    });
+  }
+
+  console.log("Schedule service functionality initialized");
 });

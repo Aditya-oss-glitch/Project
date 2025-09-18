@@ -1087,9 +1087,28 @@
         // Function to load booking data from localStorage and update the page
         function loadBookingData() {
             try {
-                const bookingData = localStorage.getItem('roadRescueBooking');
+                // Try to load regular booking data first
+                let bookingData = localStorage.getItem('roadRescueBooking');
+                let data = null;
+                
                 if (bookingData) {
-                    const data = JSON.parse(bookingData);
+                    data = JSON.parse(bookingData);
+                } else {
+                    // If no regular booking, try emergency booking
+                    bookingData = localStorage.getItem('roadRescueEmergency');
+                    if (bookingData) {
+                        data = JSON.parse(bookingData);
+                    }
+                }
+                
+                if (data) {
+                    // Debug logging
+                    console.log("🔍 Loaded booking data:", {
+                        service: data.service,
+                        serviceType: data.serviceType,
+                        serviceTitle: data.serviceTitle,
+                        trackingId: data.trackingId
+                    });
                     
                     // Update tracking ID
                     if (data.trackingId) {
@@ -1191,13 +1210,27 @@
         
         // Function to update service cost information
         function updateServiceCost(data) {
+            // Debug logging
+            console.log("🔍 updateServiceCost called with:", {
+                serviceTitle: data.serviceTitle,
+                serviceType: data.serviceType,
+                service: data.service
+            });
+            
             // Update service name in cost breakdown
             const serviceTitle = data.serviceTitle || data.serviceType || data.service;
+            console.log("🔍 Final serviceTitle:", serviceTitle);
+            
             if (serviceTitle) {
                 const serviceNameElement = document.getElementById('service-name');
                 if (serviceNameElement) {
                     serviceNameElement.textContent = serviceTitle + ' Service';
+                    console.log("🔍 Updated service name to:", serviceTitle + ' Service');
+                } else {
+                    console.log("🔍 Service name element not found");
                 }
+            } else {
+                console.log("🔍 No service title found in data");
             }
             
             // Update service price in cost breakdown

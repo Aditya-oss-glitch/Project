@@ -1,97 +1,105 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
 
 const technicianSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   email: {
     type: String,
     required: true,
     unique: true,
     trim: true,
-    lowercase: true
+    lowercase: true,
   },
   password: {
     type: String,
-    required: true
+    required: true,
   },
   phone: {
     type: String,
-    required: true
+    required: true,
   },
   location: {
     type: {
       type: String,
-      enum: ['Point'],
-      required: true
+      enum: ["Point"],
+      required: true,
     },
     coordinates: {
       type: [Number],
-      required: true
-    }
+      required: true,
+    },
   },
   status: {
     type: String,
-    enum: ['available', 'busy', 'offline'],
-    default: 'offline'
+    enum: ["available", "busy", "offline"],
+    default: "offline",
   },
   currentService: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Service'
+    ref: "Service",
   },
-  serviceHistory: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Service'
-  }],
+  serviceHistory: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Service",
+    },
+  ],
   rating: {
     type: Number,
     min: 1,
     max: 5,
-    default: 5
+    default: 5,
   },
   totalServices: {
     type: Number,
-    default: 0
+    default: 0,
   },
-  specialties: [{
-    type: String,
-    enum: [
-      'battery',
-      'fuel',
-      'mechanical',
-      'towing',
-      'tire',
-      'lockout',
-      'mobile_repair',
-      'accident_recovery'
-    ]
-  }],
+  specialties: [
+    {
+      type: String,
+      enum: [
+        "battery",
+        "fuel",
+        "mechanical",
+        "towing",
+        "tire",
+        "lockout",
+        "mobile_repair",
+        "accident_recovery",
+        "ev_charging",
+        "ev_towing",
+        "ev_battery_swap",
+        "ev_diagnostics",
+      ],
+    },
+  ],
   vehicle: {
     type: String,
-    required: true
+    required: true,
   },
   licensePlate: {
     type: String,
-    required: true
+    required: true,
   },
   avatarUrl: {
-    type: String
+    type: String,
   },
   createdAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
 // Create geospatial index for location queries
-technicianSchema.index({ location: '2dsphere' });
+technicianSchema.index({ location: "2dsphere" });
 
 // Hash password before saving
-technicianSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
+technicianSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
   try {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
@@ -102,7 +110,7 @@ technicianSchema.pre('save', async function(next) {
 });
 
 // Compare password method
-technicianSchema.methods.comparePassword = async function(candidatePassword) {
+technicianSchema.methods.comparePassword = async function (candidatePassword) {
   try {
     return await bcrypt.compare(candidatePassword, this.password);
   } catch (error) {
@@ -110,4 +118,4 @@ technicianSchema.methods.comparePassword = async function(candidatePassword) {
   }
 };
 
-module.exports = mongoose.model('Technician', technicianSchema); 
+module.exports = mongoose.model("Technician", technicianSchema);

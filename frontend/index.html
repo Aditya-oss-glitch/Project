@@ -531,6 +531,152 @@
                 });
             }
             
+            // Emergency form handling (POST to backend)
+            const emergencyForm = document.getElementById('emergency-form');
+            if (emergencyForm) {
+                emergencyForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const submitBtn = emergencyForm.querySelector('.submit-button');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                    }
+                    
+                    try {
+                        const formData = new FormData(emergencyForm);
+                        const rawLocation = formData.get('location') || '';
+                        let locationGeo = null;
+                        if (rawLocation && rawLocation.includes(',')) {
+                            const parts = rawLocation.split(',');
+                            const lat = parseFloat(parts[0]);
+                            const lng = parseFloat(parts[1]);
+                            if (!isNaN(lat) && !isNaN(lng)) {
+                                locationGeo = { type: 'Point', coordinates: [lng, lat] };
+                            }
+                        }
+                        
+                        // Validate required fields
+                        const name = formData.get('name') || '';
+                        const phone = formData.get('phone') || '';
+                        const location = formData.get('location') || '';
+                        
+                        if (!name.trim()) {
+                            alert('Please enter your name');
+                            if (submitBtn) {
+                                submitBtn.disabled = false;
+                                submitBtn.innerHTML = '<i class="fas fa-car-side"></i> Request Immediate Assistance';
+                            }
+                            return;
+                        }
+                        if (!phone.trim()) {
+                            alert('Please enter your phone number');
+                            if (submitBtn) {
+                                submitBtn.disabled = false;
+                                submitBtn.innerHTML = '<i class="fas fa-car-side"></i> Request Immediate Assistance';
+                            }
+                            return;
+                        }
+                        if (!location.trim()) {
+                            alert('Please enter your location');
+                            if (submitBtn) {
+                                submitBtn.disabled = false;
+                                submitBtn.innerHTML = '<i class="fas fa-car-side"></i> Request Immediate Assistance';
+                            }
+                            return;
+                        }
+                        
+                        const vehicleRaw = (formData.get('vehicle-info') || '').trim();
+                        const vehicleParts = vehicleRaw.split(/[-,]/).map(s => s.trim());
+                        const vehicleDetails = {
+                            year: vehicleParts[0] && /\d{4}/.test(vehicleParts[0]) ? vehicleParts[0] : '',
+                            make: vehicleParts[1] || vehicleParts[0] || '',
+                            model: vehicleParts[2] || '',
+                            color: vehicleParts[3] || ''
+                        };
+                        
+                        // Get service type from multiple sources to ensure we capture it
+                        const serviceTypeSelect = document.getElementById('service-type');
+                        const serviceType = formData.get('service-type') || 
+                                          serviceTypeSelect?.value || 
+                                          serviceTypeSelect?.selectedOptions?.[0]?.value || 
+                                          'emergency';
+                        
+                        // Validate service type
+                        if (!serviceType || serviceType === '' || serviceType === 'emergency') {
+                            alert('Please select a service type');
+                            if (submitBtn) {
+                                submitBtn.disabled = false;
+                                submitBtn.innerHTML = '<i class="fas fa-car-side"></i> Request Immediate Assistance';
+                            }
+                            return;
+                        }
+                        
+                        const payload = {
+                            type: serviceType,
+                            location: locationGeo || { type: 'Point', coordinates: [77.3635, 28.6275] },
+                            address: rawLocation || 'Unknown',
+                            contactName: formData.get('name') || '',
+                            contactPhone: formData.get('phone') || '',
+                            vehicleDetails,
+                            description: formData.get('emergency-description') || 'Emergency assistance requested',
+                            priority: 'high'
+                        };
+                        
+                        console.log('Emergency form data:', {
+                            serviceType: serviceType,
+                            formData: Object.fromEntries(formData.entries()),
+                            payload: payload
+                        });
+                        
+                        const res = await fetch('/api/services', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        
+                        if (!res.ok) {
+                            throw new Error('Failed to create emergency service');
+                        }
+                        const service = await res.json();
+                        
+                        // Show success message
+                        const successMessage = document.getElementById('success-message');
+                        const successText = document.getElementById('success-message-text');
+                        if (successMessage && successText) {
+                            successText.textContent = `Emergency assistance requested! Tracking # ${service._id}. A technician will be dispatched immediately.`;
+                            successMessage.style.display = 'flex';
+                        }
+                        emergencyModal.style.display = 'none';
+                        
+                        // Store emergency booking for tracking
+                        const emergencyData = {
+                            service: serviceType,
+                            serviceTitle: 'Emergency Assistance',
+                            location: rawLocation,
+                            notes: formData.get('emergency-description') || '',
+                            timestamp: new Date().toISOString(),
+                            trackingId: service._id,
+                            technician: service.assignedTechnician || null,
+                            priority: 'high'
+                        };
+                        try { localStorage.setItem('roadRescueEmergency', JSON.stringify(emergencyData)); } catch (_) {}
+                        
+                        setTimeout(() => {
+                            window.location.href = 'track-service.html';
+                        }, 2000);
+                    } catch (err) {
+                        alert('Emergency request failed. Please try again or call our emergency line.');
+                        console.error(err);
+                    } finally {
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = '<i class="fas fa-car-side"></i> Request Immediate Assistance';
+                        }
+                    }
+                });
+            }
+            
             // Dark mode toggle
             const themeToggle = document.getElementById('theme-toggle');
             if (themeToggle) {

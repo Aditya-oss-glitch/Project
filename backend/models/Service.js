@@ -17,6 +17,7 @@ const serviceSchema = new mongoose.Schema({
       'tire',
       'lockout',
       'mobile_repair',
+      'mechanic',
       'accident_recovery'
     ]
   },

@@ -1,7 +1,7 @@
 {
   "name": "roadrescue_web2.0",
   "version": "1.0.0",
-  "description": "",
+  "description": "RoadRescue360 Web Application",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -17,12 +17,5 @@
   "bugs": {
     "url": "https://github.com/Aditya-oss-glitch/roadrescue360_web/issues"
   },
-  "homepage": "https://github.com/Aditya-oss-glitch/roadrescue360_web#readme",
-  "devDependencies": {
-    "@capacitor/cli": "^7.4.3",
-    "@capacitor/core": "^7.4.3"
-  },
-  "dependencies": {
-    "@capacitor/android": "^7.4.3"
-  }
+  "homepage": "https://github.com/Aditya-oss-glitch/roadrescue360_web#readme"
 }

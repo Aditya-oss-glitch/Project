@@ -1,28 +1,30 @@
 // Global variables and mock API
-const mockAPI = {
-    createService: async (data) => {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        return {
-            _id: 'mock-service-' + Date.now(),
-            status: 'assigned',
-            ...data
-        };
-    },
-    getServices: async () => {
-        await new Promise(resolve => setTimeout(resolve, 800));
-        // Return mock service history if available in localStorage
-        const savedServices = localStorage.getItem('roadrescue_services');
-        return savedServices ? JSON.parse(savedServices) : [];
-    },
-    saveService: (service) => {
-        // Save to localStorage for persistence
-        const savedServices = localStorage.getItem('roadrescue_services');
-        const services = savedServices ? JSON.parse(savedServices) : [];
-        services.push(service);
-        localStorage.setItem('roadrescue_services', JSON.stringify(services));
-    }
-};
+// API helpers (using your backend)
+const API = {
+  createService: async (data) => {
+    const res = await fetch(`${BASE_URL}/api/services`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error("Failed to create service");
+    return await res.json();
+  },
 
+  getServices: async () => {
+    const res = await fetch(`${BASE_URL}/api/services`);
+    if (!res.ok) throw new Error("Failed to fetch services");
+    return await res.json();
+  },
+
+  saveService: async (service) => {
+    // optional: if you want to save bookings locally as well
+    const savedServices = localStorage.getItem("roadrescue_services");
+    const services = savedServices ? JSON.parse(savedServices) : [];
+    services.push(service);
+    localStorage.setItem("roadrescue_services", JSON.stringify(services));
+  },
+};
 // Cache DOM elements
 let map = null;
 let userMarker = null;
@@ -516,48 +518,38 @@ function showPaymentModal(serviceType) {
             submitButton.disabled = true;
             
             // Simulate API call
-            setTimeout(() => {
-                modal.style.display = 'none';
-                
-                // Show success notification
-                const notification = document.createElement('div');
-                notification.className = 'success-message';
-                notification.innerHTML = `
-                    <i class="fas fa-check-circle"></i>
-                    <div class="message-content">
-                        <p>Your ${serviceInfo.title} request has been confirmed!</p>
-                        <p>A technician will arrive at your location soon.</p>
-                    </div>
-                `;
-                document.body.appendChild(notification);
-                
-                // Remove notification after 5 seconds
-                setTimeout(() => {
-                    if (document.body.contains(notification)) {
-                        document.body.removeChild(notification);
-                    }
-                }, 5000);
-                
-                // Remove modal
-                if (document.body.contains(modal)) {
-                    document.body.removeChild(modal);
-                }
-                
+            API.createService({
+                name: nameInput.value,
+                phone: phoneInput.value,
+                location: locationInput.value,
+                vehicle: vehicleInput.value,
+                serviceType: serviceType,
+            }).then(service => {
+                modal.style.display = "none";
+
+                showNotification(`Your ${service.title} request has been confirmed!`, "success");
+
                 // Redirect to tracking page
-                window.location.href = '#tracking';
-                
-                // Update tracking info
-                const technicianName = document.getElementById('technician-name');
-                const etaElement = document.getElementById('eta');
-                const statusBadge = document.querySelector('.status-badge');
-                
-                if (technicianName) technicianName.textContent = 'John Smith';
-                if (etaElement) etaElement.textContent = '15 minutes';
+                window.location.href = "#tracking";
+
+                // Example: update tracking info
+                const technicianName = document.getElementById("technician-name");
+                const etaElement = document.getElementById("eta");
+                const statusBadge = document.querySelector(".status-badge");
+
+                if (technicianName) technicianName.textContent = "John Smith";
+                if (etaElement) etaElement.textContent = "15 minutes";
                 if (statusBadge) {
-                    statusBadge.textContent = 'On the way';
-                    statusBadge.className = 'status-badge active';
+                statusBadge.textContent = "On the way";
+                statusBadge.className = "status-badge active";
                 }
-            }, 2000);
+            }).catch(err => {
+                console.error(err);
+                showNotification("Booking failed. Please try again.", "error");
+            }).finally(() => {
+                submitButton.textContent = "Confirm Booking";
+                submitButton.disabled = false;
+            });
         });
     }
     

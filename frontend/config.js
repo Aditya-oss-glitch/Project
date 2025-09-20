@@ -13,3 +13,5 @@ let BASE_URL = CONFIG.localhost;  // Default for browser
 if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
   BASE_URL = CONFIG.production;
 }
+
+window.BASE_URL = BASE_URL;

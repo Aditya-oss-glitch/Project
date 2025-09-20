@@ -87,6 +87,7 @@ app.use("/api/services", require("./routes/services"));
 app.use("/api/payments", require("./routes/payments"));
 app.use("/api/tracking", require("./routes/tracking"));
 app.use("/api/md", require("./routes/md"));
+app.use("/api/emergency", require("./routes/emergency"));
 
 // ✅ Serve frontend (HTML/JS/CSS) for non-API routes
 app.get("*", (req, res) => {

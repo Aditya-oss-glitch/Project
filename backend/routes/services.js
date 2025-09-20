@@ -300,7 +300,7 @@ router.put("/:id/rate", async (req, res) => {
   }
 });
 
-module.exports = router;
+
 /**
  * @route   PUT /api/services/:id/assign/self
  * @desc    Assign the current authenticated technician to the service
@@ -348,3 +348,4 @@ router.put("/:id/assign/self", authTechnician, async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
+module.exports = router;

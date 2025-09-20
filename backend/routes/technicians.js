@@ -101,29 +101,38 @@ router.post('/',
 
 // Update technician status and location
 router.put('/:id/status', auth, async (req, res) => {
-    try {
-        const { status, currentLocation } = req.body;
-        const technician = await Technician.findById(req.params.id);
+  try {
+    const { status, coordinates } = req.body; // expect [lng, lat]
+    const technician = await Technician.findById(req.params.id);
 
-        if (!technician) {
-            return res.status(404).json({ message: 'Technician not found' });
-        }
-
-        // Check if user is the technician or admin
-        if (req.user._id.toString() !== technician._id.toString() && req.user.role !== 'admin') {
-            return res.status(403).json({ message: 'Not authorized' });
-        }
-
-        if (status) technician.status = status;
-        if (currentLocation) technician.currentLocation = currentLocation;
-
-        await technician.save();
-
-        res.json(technician);
-    } catch (error) {
-        console.error('Technician status update error:', error);
-        res.status(500).json({ message: 'Server error' });
+    if (!technician) {
+      return res.status(404).json({ message: "Technician not found" });
     }
+
+    // Check if user is the technician or admin
+    if (
+      req.user._id.toString() !== technician._id.toString() &&
+      req.user.role !== "admin"
+    ) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    if (status) technician.status = status;
+
+    // ✅ Store location as GeoJSON
+    if (coordinates && Array.isArray(coordinates) && coordinates.length === 2) {
+      technician.location = {
+        type: "Point",
+        coordinates: coordinates, // [lng, lat]
+      };
+    }
+
+    await technician.save();
+    res.json(technician);
+  } catch (error) {
+    console.error("Technician status update error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
 });
 
 // Update technician profile

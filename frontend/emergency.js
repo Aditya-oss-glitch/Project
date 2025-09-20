@@ -62,33 +62,44 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Handle emergency form submission
+   // Handle emergency form submission
     if (emergencyForm) {
-        emergencyForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Validate form
-            const isValid = validateEmergencyForm();
-            if (!isValid) return;
-            
-            // Show loading state
-            const submitBtn = emergencyForm.querySelector('.submit-button');
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-            submitBtn.disabled = true;
-            
-            // Simulate form submission (replace with actual API call in production)
-            setTimeout(() => {
-                // Generate a unique request ID
-                const requestId = 'ER-' + Date.now().toString().substring(6);
-                
-                // Transform form into status view
-                transformToStatusView(requestId);
-                
-                // Reset button state
-                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send SOS Request';
-                submitBtn.disabled = false;
-            }, 2000);
+    emergencyForm.addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const isValid = validateEmergencyForm();
+        if (!isValid) return;
+
+        const submitBtn = emergencyForm.querySelector(".submit-button");
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        submitBtn.disabled = true;
+
+        try {
+        const data = {
+            location: document.getElementById("location").value,
+            issue: document.getElementById("issue").value,
+            phone: document.getElementById("phone").value,
+            vehicleInfo: document.getElementById("vehicle-info").value,
+        };
+
+        const res = await fetch(`${BASE_URL}/api/emergency`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
         });
+
+        if (!res.ok) throw new Error("Failed to submit SOS request");
+
+        const result = await res.json();
+        transformToStatusView(result.requestId);
+
+        } catch (err) {
+        alert("Error: " + err.message);
+        } finally {
+        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send SOS Request';
+        submitBtn.disabled = false;
+        }
+    });
     }
     
     // Helper function to check if form has any data entered

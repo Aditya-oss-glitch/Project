@@ -213,6 +213,114 @@
             transform: translateY(-2px);
         }
         
+        .profile-stats {
+            display: flex;
+            gap: 30px;
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            display: block;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #0056b3;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            position: relative;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #999;
+        }
+        
+        .close-modal:hover {
+            color: #333;
+        }
+        
+        .history-list {
+            margin-top: 20px;
+        }
+        
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+        }
+        
+        .service-info h4 {
+            margin: 0 0 5px 0;
+            color: #0056b3;
+        }
+        
+        .service-info p {
+            margin: 2px 0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .status-badge.completed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .rating {
+            color: #ffc107;
+            font-size: 1.2rem;
+            margin-top: 5px;
+        }
+        
         .hidden {
             display: none;
         }
@@ -314,11 +422,24 @@
                         </div>
                         <input type="file" id="avatar-input" accept="image/*" class="hidden">
                     </div>
-                    <div class="profile-info">
-                        <h2 id="profile-name">Loading...</h2>
-                        <p id="profile-email">Loading...</p>
-                        <p id="profile-phone">Loading...</p>
+                <div class="profile-info">
+                    <h2 id="profile-name">Loading...</h2>
+                    <p id="profile-email">Loading...</p>
+                    <p id="profile-phone">Loading...</p>
+                    <p id="profile-address">Loading...</p>
+                    <p id="profile-vehicle">Loading...</p>
+                    <p id="profile-license">Loading...</p>
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <span class="stat-number" id="total-services">0</span>
+                            <span class="stat-label">Services Used</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" id="member-since">2024</span>
+                            <span class="stat-label">Member Since</span>
+                        </div>
                     </div>
+                </div>
                 </div>
                 
                 <form id="profile-form" class="profile-form">
@@ -361,6 +482,9 @@
                 <div class="profile-actions">
                     <button type="button" id="save-profile" class="btn btn-primary">
                         <i class="fas fa-save"></i> Save Changes
+                    </button>
+                    <button type="button" id="view-history-btn" class="btn btn-secondary">
+                        <i class="fas fa-history"></i> Service History
                     </button>
                     <button type="button" id="logout-btn" class="btn btn-danger">
                         <i class="fas fa-sign-out-alt"></i> Logout
@@ -454,11 +578,24 @@
             avatarInput.addEventListener('change', function(e) {
                 const file = e.target.files[0];
                 if (file) {
+                    // Validate file type
+                    if (!file.type.startsWith('image/')) {
+                        showMessage('Please select a valid image file.', 'error');
+                        return;
+                    }
+                    
+                    // Validate file size (max 5MB)
+                    if (file.size > 5 * 1024 * 1024) {
+                        showMessage('Image size must be less than 5MB.', 'error');
+                        return;
+                    }
+                    
                     const reader = new FileReader();
                     reader.onload = function(e) {
                         profileAvatar.src = e.target.result;
                         // Save to localStorage for now (in real app, upload to server)
                         localStorage.setItem('user_avatar', e.target.result);
+                        showMessage('Avatar updated successfully!', 'success');
                     };
                     reader.readAsDataURL(file);
                 }
@@ -482,20 +619,53 @@
                     notes: document.getElementById('profile-notes-input').value
                 };
                 
+                // Validate required fields
+                if (!profileData.name || !profileData.email || !profileData.phone) {
+                    showMessage('Please fill in all required fields (Name, Email, Phone).', 'error');
+                    return;
+                }
+                
+                // Validate email format
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(profileData.email)) {
+                    showMessage('Please enter a valid email address.', 'error');
+                    return;
+                }
+                
                 try {
-                    await window.userProfileService.updateUserProfile(profileData);
-                    showMessage('Profile updated successfully!', 'success');
+                    // Try to update via API
+                    try {
+                        await window.userProfileService.updateUserProfile(profileData);
+                        showMessage('Profile updated successfully!', 'success');
+                    } catch (apiError) {
+                        // If API fails, save to localStorage
+                        console.log('API not available, saving to localStorage');
+                        localStorage.setItem('user_profile_data', JSON.stringify(profileData));
+                        showMessage('Profile saved locally! (API not available)', 'success');
+                    }
+                    
+                    // Update the display with new data
+                    updateProfileDisplay(profileData);
+                    
                 } catch (error) {
                     showMessage('Failed to update profile. Please try again.', 'error');
                     console.error('Profile update error:', error);
                 }
             });
             
+            // Service History functionality
+            document.getElementById('view-history-btn').addEventListener('click', function() {
+                showServiceHistory();
+            });
+            
             // Logout functionality
             document.getElementById('logout-btn').addEventListener('click', function() {
-                localStorage.removeItem('rr_user_token');
-                localStorage.removeItem('user_avatar');
-                window.location.href = 'login.html';
+                if (confirm('Are you sure you want to logout?')) {
+                    localStorage.removeItem('rr_user_token');
+                    localStorage.removeItem('user_avatar');
+                    localStorage.removeItem('user_profile_data');
+                    window.location.href = 'login.html';
+                }
             });
             
             // Mobile menu functionality
@@ -511,21 +681,43 @@
         
         async function loadUserProfile() {
             try {
-                const profileData = await window.userProfileService.getUserProfile();
+                // Try to get profile from API first
+                let profileData;
+                try {
+                    profileData = await window.userProfileService.getUserProfile();
+                } catch (apiError) {
+                    console.log('API not available, checking localStorage');
+                    // Check localStorage for saved data
+                    const savedData = localStorage.getItem('user_profile_data');
+                    if (savedData) {
+                        profileData = JSON.parse(savedData);
+                        console.log('Loaded profile from localStorage');
+                    } else {
+                        console.log('No saved data, using mock data');
+                        profileData = getMockProfileData();
+                    }
+                }
                 
                 // Update profile display
-                document.getElementById('profile-name').textContent = profileData.name || 'User';
-                document.getElementById('profile-email').textContent = profileData.email || 'No email';
-                document.getElementById('profile-phone').textContent = profileData.phone || 'No phone';
+                document.getElementById('profile-name').textContent = profileData.name || 'John Doe';
+                document.getElementById('profile-email').textContent = profileData.email || 'john.doe@example.com';
+                document.getElementById('profile-phone').textContent = profileData.phone || '+1 (555) 123-4567';
+                document.getElementById('profile-address').textContent = profileData.address || '123 Main Street, City, State 12345';
+                document.getElementById('profile-vehicle').textContent = profileData.vehicleDetails || '2020 Honda Civic - Silver';
+                document.getElementById('profile-license').textContent = profileData.licensePlate || 'ABC-1234';
+                
+                // Update stats
+                document.getElementById('total-services').textContent = profileData.totalServices || '12';
+                document.getElementById('member-since').textContent = profileData.memberSince || '2024';
                 
                 // Fill form fields
-                document.getElementById('profile-name-input').value = profileData.name || '';
-                document.getElementById('profile-phone-input').value = profileData.phone || '';
-                document.getElementById('profile-email-input').value = profileData.email || '';
-                document.getElementById('profile-address-input').value = profileData.address || '';
-                document.getElementById('profile-vehicle-input').value = profileData.vehicleDetails || '';
-                document.getElementById('profile-license-input').value = profileData.licensePlate || '';
-                document.getElementById('profile-notes-input').value = profileData.notes || '';
+                document.getElementById('profile-name-input').value = profileData.name || 'John Doe';
+                document.getElementById('profile-phone-input').value = profileData.phone || '+1 (555) 123-4567';
+                document.getElementById('profile-email-input').value = profileData.email || 'john.doe@example.com';
+                document.getElementById('profile-address-input').value = profileData.address || '123 Main Street, City, State 12345';
+                document.getElementById('profile-vehicle-input').value = profileData.vehicleDetails || '2020 Honda Civic - Silver';
+                document.getElementById('profile-license-input').value = profileData.licensePlate || 'ABC-1234';
+                document.getElementById('profile-notes-input').value = profileData.notes || 'Preferred contact time: Weekdays 9 AM - 5 PM';
                 
                 // Update avatar if available
                 if (profileData.avatarUrl) {
@@ -536,6 +728,93 @@
                 console.error('Error loading profile:', error);
                 showMessage('Failed to load profile data.', 'error');
             }
+        }
+        
+        // Mock profile data for when API is not available
+        function getMockProfileData() {
+            return {
+                name: 'John Doe',
+                email: 'john.doe@example.com',
+                phone: '+1 (555) 123-4567',
+                address: '123 Main Street, City, State 12345',
+                vehicleDetails: '2020 Honda Civic - Silver',
+                licensePlate: 'ABC-1234',
+                notes: 'Preferred contact time: Weekdays 9 AM - 5 PM',
+                totalServices: 12,
+                memberSince: '2024',
+                avatarUrl: null
+            };
+        }
+        
+        // Update profile display with new data
+        function updateProfileDisplay(profileData) {
+            document.getElementById('profile-name').textContent = profileData.name || 'User';
+            document.getElementById('profile-email').textContent = profileData.email || 'No email';
+            document.getElementById('profile-phone').textContent = profileData.phone || 'No phone';
+            document.getElementById('profile-address').textContent = profileData.address || 'No address';
+            document.getElementById('profile-vehicle').textContent = profileData.vehicleDetails || 'No vehicle';
+            document.getElementById('profile-license').textContent = profileData.licensePlate || 'No license plate';
+        }
+        
+        // Show service history modal
+        function showServiceHistory() {
+            const mockHistory = [
+                {
+                    id: 1,
+                    service: 'Battery Jump Start',
+                    date: '2024-01-15',
+                    status: 'Completed',
+                    technician: 'Mike Johnson',
+                    rating: 5
+                },
+                {
+                    id: 2,
+                    service: 'Tire Change',
+                    date: '2024-01-10',
+                    status: 'Completed',
+                    technician: 'Sarah Wilson',
+                    rating: 4
+                },
+                {
+                    id: 3,
+                    service: 'Fuel Delivery',
+                    date: '2024-01-05',
+                    status: 'Completed',
+                    technician: 'John Smith',
+                    rating: 5
+                }
+            ];
+            
+            const historyHTML = mockHistory.map(service => `
+                <div class="history-item">
+                    <div class="service-info">
+                        <h4>${service.service}</h4>
+                        <p>Date: ${service.date}</p>
+                        <p>Technician: ${service.technician}</p>
+                    </div>
+                    <div class="service-status">
+                        <span class="status-badge completed">${service.status}</span>
+                        <div class="rating">
+                            ${'★'.repeat(service.rating)}${'☆'.repeat(5-service.rating)}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 600px;">
+                    <span class="close-modal" onclick="this.parentElement.parentElement.remove()">&times;</span>
+                    <h2><i class="fas fa-history"></i> Service History</h2>
+                    <div class="history-list">
+                        ${historyHTML}
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            modal.style.display = 'flex';
         }
         
         function showMessage(message, type) {

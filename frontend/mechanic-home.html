@@ -9,6 +9,18 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
+    <style>
+      .btn-done:hover {
+        background-color: #218838 !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+      }
+      
+      .btn-done:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);
+      }
+    </style>
   </head>
   <body>
     <nav class="navbar">
@@ -143,9 +155,6 @@
         <section id="profile" class="services-section">
           <h2 class="section-title">
             <i class="fas fa-id-badge section-title-icon"></i> My Profile
-            <button id="edit-profile-btn" class="btn btn-primary" style="float: right; margin-top: -5px;">
-              <i class="fas fa-edit"></i> Edit Profile
-            </button>
           </h2>
           <div class="service-item" style="padding: 20px">
             <div style="display: flex; gap: 20px; align-items: flex-start">
@@ -175,7 +184,10 @@
               </div>
               <div style="flex: 1">
                 <div id="me-profile">Loading...</div>
-                <form id="profile-form" style="margin-top: 15px">
+                <button id="edit-profile-btn" class="btn btn-primary" style="margin-top: 15px;">
+                  <i class="fas fa-edit"></i> Edit Profile
+                </button>
+                <form id="profile-form" style="margin-top: 15px; display: none;">
                   <div class="details-grid">
                     <div class="detail-card">
                       <div class="detail-content">
@@ -372,6 +384,9 @@
                             ${timeline}
                             <div class="service-buttons">
                                 <a class="btn-learn" href="track-service.html">Track</a>
+                                <button class="btn-done" onclick="markJobComplete('${s._id}')" style="background-color: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-left: 10px; transition: all 0.3s ease; font-weight: 500;">
+                                    <i class="fas fa-check"></i> Done
+                                </button>
                                 <span class="btn-book" style="text-align:center;">${assigned}</span>
                             </div>`;
               container.appendChild(el);
@@ -558,6 +573,14 @@
           if (!res.ok) return alert(data.error || "Update failed");
           alert("Profile updated");
           loadProfile();
+          
+          // Hide the form after successful update
+          const profileForm = document.getElementById("profile-form");
+          const editBtn = document.getElementById("edit-profile-btn");
+          profileForm.style.display = "none";
+          editBtn.innerHTML = '<i class="fas fa-edit"></i> Edit Profile';
+          editBtn.classList.remove("btn-secondary");
+          editBtn.classList.add("btn-primary");
         });
 
       // Upload avatar
@@ -717,17 +740,65 @@
 
       // Edit profile button functionality
       document.getElementById("edit-profile-btn").addEventListener("click", function() {
-        // Scroll to profile form
-        document.getElementById("profile").scrollIntoView({ behavior: 'smooth' });
+        const profileForm = document.getElementById("profile-form");
+        const editBtn = document.getElementById("edit-profile-btn");
         
-        // Focus on first input field
-        setTimeout(() => {
-          const firstInput = document.querySelector("#profile-form input");
-          if (firstInput) {
-            firstInput.focus();
-          }
-        }, 500);
+        if (profileForm.style.display === "none" || profileForm.style.display === "") {
+          // Show the form
+          profileForm.style.display = "block";
+          editBtn.innerHTML = '<i class="fas fa-times"></i> Cancel';
+          editBtn.classList.remove("btn-primary");
+          editBtn.classList.add("btn-secondary");
+          
+          // Focus on first input field
+          setTimeout(() => {
+            const firstInput = document.querySelector("#profile-form input");
+            if (firstInput) {
+              firstInput.focus();
+            }
+          }, 100);
+        } else {
+          // Hide the form
+          profileForm.style.display = "none";
+          editBtn.innerHTML = '<i class="fas fa-edit"></i> Edit Profile';
+          editBtn.classList.remove("btn-secondary");
+          editBtn.classList.add("btn-primary");
+        }
       });
+
+      // Mark job as complete function
+      async function markJobComplete(jobId) {
+        // Show confirmation dialog
+        if (!confirm("Are you sure you want to mark this job as completed?")) {
+          return;
+        }
+        
+        try {
+          const res = await fetch(`${BASE_URL}/api/services/${jobId}/status`, {
+            method: "PUT",
+            headers: { ...authHeader(), "Content-Type": "application/json" },
+            body: JSON.stringify({ status: "completed" })
+          });
+          
+          if (!res.ok) {
+            const error = await res.json();
+            throw new Error(error.error || "Failed to mark job as complete");
+          }
+          
+          // Show success message
+          alert("Job marked as completed successfully!");
+          
+          // Reload assignments to update the counts and remove completed job
+          loadAssignments();
+          
+        } catch (error) {
+          console.error("Error marking job as complete:", error);
+          alert("Failed to mark job as complete: " + error.message);
+        }
+      }
+      
+      // Make function globally available
+      window.markJobComplete = markJobComplete;
 
       // Initial loads
       refreshCustomers();

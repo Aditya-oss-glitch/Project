@@ -584,8 +584,28 @@
             const scheduleForm = document.getElementById('schedule-service-form');
             
             if (scheduleForm) {
-                scheduleForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
+                console.log('Schedule form found and event listener attached');
+                
+                // Check if submit button exists and add click handler
+                const submitButton = scheduleForm.querySelector('.schedule-submit');
+                if (submitButton) {
+                    console.log('Submit button found:', submitButton);
+                    
+                    // Add click handler to manually trigger form submission
+                    submitButton.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        console.log('Submit button clicked - triggering form submission');
+                        
+                        // Manually trigger the form submission logic
+                        handleFormSubmission();
+                    });
+                } else {
+                    console.log('Submit button not found!');
+                }
+                
+                // Create the form submission handler function
+                function handleFormSubmission() {
+                    console.log('Form submission triggered');
                     
                     // Get selected schedule option
                     const selectedOption = document.querySelector('.schedule-option.selected');
@@ -616,7 +636,16 @@
                     }
                     
                     // Enhanced validation
+                    console.log('Validation check:', {
+                        serviceType,
+                        serviceLocation,
+                        vehicleDetails,
+                        name,
+                        phone
+                    });
+                    
                     if (!serviceType || !serviceLocation || !vehicleDetails || !name || !phone) {
+                        console.log('Validation failed - missing required fields');
                         alert('Please fill out all required fields.');
                         return;
                     }
@@ -710,6 +739,13 @@
                     
                     // Reset form
                     scheduleForm.reset();
+                }
+                
+                // Keep the original form event listener as backup
+                scheduleForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    console.log('Form submit event triggered');
+                    handleFormSubmission();
                 });
             }
             

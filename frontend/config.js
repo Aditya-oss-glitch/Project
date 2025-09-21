@@ -3,7 +3,7 @@
 // Define all environments
 const CONFIG = {
   localhost: "http://localhost:3000",     // Local development
-  production: "https://roadrescue360-backend.onrender.com"   // Production server
+  production: "https://roadrescue-360.onrender.com"   // Production server
 };
 
 // Choose BASE_URL automatically

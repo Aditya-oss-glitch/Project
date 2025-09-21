@@ -270,7 +270,10 @@
       }
       function authHeader() {
         const t = getToken();
-        return t ? { Authorization: "Bearer " + t } : {};
+        console.log('🔍 Token from localStorage:', t);
+        const header = t ? { Authorization: "Bearer " + t } : {};
+        console.log('🔍 Auth header:', header);
+        return header;
       }
       function ensureAuth() {
         if (!getToken()) {
@@ -402,10 +405,20 @@
         const box = document.getElementById("me-profile");
         box.textContent = "Loading...";
         try {
+          console.log('🔍 Loading technician profile...');
+          console.log('🔍 BASE_URL:', BASE_URL);
+          console.log('🔍 Auth header:', authHeader());
+          
           const res = await fetch(`${BASE_URL}/api/auth/technician/me`, {
             headers: { ...authHeader() },
           });
+          
+          console.log('🔍 Response status:', res.status);
+          console.log('🔍 Response headers:', res.headers);
+          
           const tech = await res.json();
+          console.log('🔍 Response data:', tech);
+          
           if (!res.ok) throw new Error(tech.error || "Failed to load");
           document.getElementById("avatar").src =
             tech.avatarUrl || document.getElementById("avatar").src;
@@ -564,12 +577,19 @@
           };
 
           console.log("🔍 Form submission - payload:", payload);
+          console.log("🔍 BASE_URL:", BASE_URL);
+          console.log("🔍 Auth header:", authHeader());
+          
           const res = await fetch(`${BASE_URL}/api/auth/technician/me`, {
             method: "PUT",
             headers: { "Content-Type": "application/json", ...authHeader() },
             body: JSON.stringify(payload),
           });
+          
+          console.log("🔍 Save response status:", res.status);
           const data = await res.json();
+          console.log("🔍 Save response data:", data);
+          
           if (!res.ok) return alert(data.error || "Update failed");
           alert("Profile updated");
           loadProfile();

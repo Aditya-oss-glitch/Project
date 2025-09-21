@@ -44,21 +44,21 @@
               style="min-height: auto; text-align: center"
             >
               <h3 style="margin-bottom: 8px">Active Jobs</h3>
-              <div class="stat-number" id="stat-active">0</div>
+              <div class="stat-number" id="stat-active" style="color: #0056b3; font-weight: bold; font-size: 2rem;">0</div>
             </div>
             <div
               class="service-item"
               style="min-height: auto; text-align: center"
             >
               <h3 style="margin-bottom: 8px">Pending</h3>
-              <div class="stat-number" id="stat-pending">0</div>
+              <div class="stat-number" id="stat-pending" style="color: #0056b3; font-weight: bold; font-size: 2rem;">0</div>
             </div>
             <div
               class="service-item"
               style="min-height: auto; text-align: center"
             >
               <h3 style="margin-bottom: 8px">Completed</h3>
-              <div class="stat-number" id="stat-completed">0</div>
+              <div class="stat-number" id="stat-completed" style="color: #0056b3; font-weight: bold; font-size: 2rem;">0</div>
             </div>
           </div>
         </section>
@@ -143,6 +143,9 @@
         <section id="profile" class="services-section">
           <h2 class="section-title">
             <i class="fas fa-id-badge section-title-icon"></i> My Profile
+            <button id="edit-profile-btn" class="btn btn-primary" style="float: right; margin-top: -5px;">
+              <i class="fas fa-edit"></i> Edit Profile
+            </button>
           </h2>
           <div class="service-item" style="padding: 20px">
             <div style="display: flex; gap: 20px; align-items: flex-start">
@@ -711,6 +714,20 @@
           document.getElementById("j-form").reset();
           refreshJobs();
         });
+
+      // Edit profile button functionality
+      document.getElementById("edit-profile-btn").addEventListener("click", function() {
+        // Scroll to profile form
+        document.getElementById("profile").scrollIntoView({ behavior: 'smooth' });
+        
+        // Focus on first input field
+        setTimeout(() => {
+          const firstInput = document.querySelector("#profile-form input");
+          if (firstInput) {
+            firstInput.focus();
+          }
+        }, 500);
+      });
 
       // Initial loads
       refreshCustomers();

@@ -100,6 +100,9 @@
                 <a href="faq.html">FAQ</a>
                 <a href="about.html">About Us</a>
                 <a href="contact.html">Contact</a>
+                <a href="user-profile.html" id="nav-profile" style="display: none">
+                    <i class="fas fa-user"></i> Profile
+                </a>
                 <a href="login.html" id="nav-login">Login</a>
           <a href="mechanic-home.html" id="nav-mechanic" style="display: none"
             >Mechanic</a
@@ -584,8 +587,11 @@
           const navLogin = document.getElementById("nav-login");
           const navMechanic = document.getElementById("nav-mechanic");
           const navLogout = document.getElementById("nav-logout");
+          const navProfile = document.getElementById("nav-profile");
           if (techToken && navMechanic)
             navMechanic.style.display = "inline-block";
+          if (userToken && navProfile)
+            navProfile.style.display = "inline-block";
           if ((userToken || techToken) && navLogin)
             navLogin.style.display = "none";
           if ((userToken || techToken) && navLogout)

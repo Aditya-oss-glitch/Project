@@ -367,6 +367,12 @@
                         <input type="email" id="schedule-service-email" placeholder="Your email address">
                     </div>
                     
+                    <div class="form-group">
+                        <button type="button" id="load-profile-btn" class="btn btn-secondary" style="width: 100%; margin-top: 10px;">
+                            <i class="fas fa-user"></i> Load from Profile
+                        </button>
+                    </div>
+                    
                     <div class="form-group form-full-width">
                         <label for="schedule-service-notes">Additional Notes</label>
                         <textarea id="schedule-service-notes" placeholder="Any specific details about your vehicle or service needs" rows="4"></textarea>
@@ -431,6 +437,7 @@
         </div>
     </footer>
     <script src="config.js"></script>
+    <script src="user-profile-service.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize theme toggle
@@ -544,6 +551,33 @@
                 const tomorrow = new Date(today);
                 tomorrow.setDate(tomorrow.getDate() + 1);
                 dateInput.min = tomorrow.toISOString().split('T')[0];
+            }
+            
+            // Load profile data functionality
+            const loadProfileBtn = document.getElementById('load-profile-btn');
+            if (loadProfileBtn) {
+                loadProfileBtn.addEventListener('click', async function() {
+                    try {
+                        if (!window.userProfileService.isLoggedIn()) {
+                            alert('Please log in to load your profile data.');
+                            return;
+                        }
+                        
+                        const profileData = await window.userProfileService.getUserProfile();
+                        
+                        // Fill form fields with profile data
+                        document.getElementById('schedule-service-name').value = profileData.name || '';
+                        document.getElementById('schedule-service-phone').value = profileData.phone || '';
+                        document.getElementById('schedule-service-email').value = profileData.email || '';
+                        document.getElementById('schedule-service-vehicle').value = profileData.vehicleDetails || '';
+                        document.getElementById('schedule-service-location').value = profileData.address || '';
+                        
+                        showMessage('Profile data loaded successfully!', 'success');
+                    } catch (error) {
+                        console.error('Error loading profile:', error);
+                        showMessage('Failed to load profile data. Please fill manually.', 'error');
+                    }
+                });
             }
             
             // Form submission
@@ -667,12 +701,12 @@
                     const successMessage = `Thank you, ${name}! Your ${serviceType} service has been scheduled ${scheduleTypeText[scheduleType]}. We will contact you at ${phone} to confirm.`;
                     
                     // Show success message
-                    alert(successMessage);
+                    showMessage(successMessage, 'success');
                     
                     // Redirect to tracking page after a short delay
                     setTimeout(() => {
                         window.location.href = 'track-service.html';
-                    }, 2000);
+                    }, 3000);
                     
                     // Reset form
                     scheduleForm.reset();
@@ -724,6 +758,41 @@
                     'mechanic': 'Starting at ₹1000'
                 };
                 return pricing[service] || 'Contact for pricing';
+            }
+            
+            // Message display function
+            function showMessage(message, type) {
+                // Remove existing messages
+                const existingMessages = document.querySelectorAll('.success-message, .error-message');
+                existingMessages.forEach(msg => msg.remove());
+                
+                const messageDiv = document.createElement('div');
+                messageDiv.className = type === 'success' ? 'success-message' : 'error-message';
+                messageDiv.style.cssText = `
+                    position: fixed;
+                    top: 100px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: ${type === 'success' ? '#d4edda' : '#f8d7da'};
+                    color: ${type === 'success' ? '#155724' : '#721c24'};
+                    padding: 15px 30px;
+                    border-radius: 5px;
+                    border: 1px solid ${type === 'success' ? '#c3e6cb' : '#f5c6cb'};
+                    z-index: 1000;
+                    max-width: 500px;
+                    text-align: center;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                `;
+                messageDiv.textContent = message;
+                
+                document.body.appendChild(messageDiv);
+                
+                // Auto-remove after 5 seconds
+                setTimeout(() => {
+                    if (messageDiv.parentNode) {
+                        messageDiv.remove();
+                    }
+                }, 5000);
             }
         });
     </script>

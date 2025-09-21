@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile - RoadRescue360</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .profile-hero {
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
+                         url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            height: 50vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            padding-top: 80px;
+            position: relative;
+        }
+        
+        .profile-hero .hero-content {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .profile-hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+        
+        .profile-hero p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto;
+            font-weight: 300;
+        }
+        
+        .profile-section {
+            background-color: #f8f9fa;
+            padding: 60px 0;
+        }
+        
+        .profile-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #f1f3f5;
+        }
+        
+        .profile-avatar-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .profile-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #0056b3;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .profile-avatar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 86, 179, 0.3);
+        }
+        
+        .avatar-edit-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .profile-avatar-container:hover .avatar-edit-overlay {
+            opacity: 1;
+        }
+        
+        .avatar-edit-overlay i {
+            color: white;
+            font-size: 2rem;
+        }
+        
+        .profile-info h2 {
+            color: #0056b3;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+        
+        .profile-info p {
+            color: #6c757d;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+        
+        .profile-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-gap: 20px;
+        }
+        
+        .form-full-width {
+            grid-column: 1 / 3;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #0056b3;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+            outline: none;
+        }
+        
+        .profile-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            justify-content: center;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background-color: #0056b3;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #004494;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            transform: translateY(-2px);
+        }
+        
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+        }
+        
+        @media (max-width: 768px) {
+            .profile-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-full-width {
+                grid-column: 1;
+            }
+            
+            .profile-container {
+                padding: 30px 20px;
+            }
+            
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .profile-actions {
+                flex-direction: column;
+            }
+            
+            .profile-hero h1 {
+                font-size: 2.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <h1><i class="fas fa-car-crash"></i> <span class="logo-text">ROAD<span class="logo-highlight">RESCUE</span><span class="logo-number">360</span></span></h1>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="index.html#services">Services</a>
+                <a href="schedule-service.html">Schedule</a>
+                <a href="faq.html">FAQ</a>
+                <a href="index.html#about">About Us</a>
+                <a href="index.html#contact">Contact</a>
+                <a href="user-profile.html" class="active">Profile</a>
+            </div>
+            <div class="theme-toggle" id="theme-toggle">
+                <i class="fas fa-sun"></i>
+                <div class="toggle-track">
+                    <div class="toggle-thumb"></div>
+                </div>
+                <i class="fas fa-moon"></i>
+            </div>
+            <div class="mobile-menu">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="profile-hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>User Profile</h1>
+                <p>Manage your account settings and personal information</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Profile Section -->
+    <section class="profile-section">
+        <div class="container">
+            <div class="profile-container">
+                <div class="profile-header">
+                    <div class="profile-avatar-container">
+                        <img id="profile-avatar" src="https://via.placeholder.com/150x150?text=User" alt="Profile Avatar" class="profile-avatar">
+                        <div class="avatar-edit-overlay" onclick="document.getElementById('avatar-input').click()">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <input type="file" id="avatar-input" accept="image/*" class="hidden">
+                    </div>
+                    <div class="profile-info">
+                        <h2 id="profile-name">Loading...</h2>
+                        <p id="profile-email">Loading...</p>
+                        <p id="profile-phone">Loading...</p>
+                    </div>
+                </div>
+                
+                <form id="profile-form" class="profile-form">
+                    <div class="form-group">
+                        <label for="profile-name-input">Full Name</label>
+                        <input type="text" id="profile-name-input" placeholder="Enter your full name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="profile-phone-input">Phone Number</label>
+                        <input type="tel" id="profile-phone-input" placeholder="Enter your phone number" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="profile-email-input">Email Address</label>
+                        <input type="email" id="profile-email-input" placeholder="Enter your email address" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="profile-address-input">Address</label>
+                        <input type="text" id="profile-address-input" placeholder="Enter your address">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="profile-vehicle-input">Vehicle Details</label>
+                        <input type="text" id="profile-vehicle-input" placeholder="Year, Make, Model, Color">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="profile-license-input">License Plate</label>
+                        <input type="text" id="profile-license-input" placeholder="Enter your license plate number">
+                    </div>
+                    
+                    <div class="form-group form-full-width">
+                        <label for="profile-notes-input">Additional Notes</label>
+                        <textarea id="profile-notes-input" placeholder="Any additional information about your vehicle or preferences" rows="4"></textarea>
+                    </div>
+                </form>
+                
+                <div class="profile-actions">
+                    <button type="button" id="save-profile" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                    <button type="button" id="logout-btn" class="btn btn-danger">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Contact Us</h3>
+                    <p><i class="fas fa-phone"></i> Emergency: 1-800-ROAD-HELP</p>
+                    <p><i class="fas fa-envelope"></i> support@roadrescue360.com</p>
+                    <p><i class="fas fa-clock"></i> 24/7 Service Available</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <a href="index.html">Home</a>
+                    <a href="index.html#services">Services</a>
+                    <a href="schedule-service.html">Schedule</a>
+                    <a href="faq.html">FAQ</a>
+                </div>
+                <div class="footer-section">
+                    <h3>Follow Us</h3>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 RoadRescue360. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="config.js"></script>
+    <script src="user-profile-service.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize theme toggle
+            const themeToggle = document.getElementById('theme-toggle');
+            const htmlElement = document.documentElement;
+            
+            // Check for saved theme preference
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                htmlElement.setAttribute('data-theme', savedTheme);
+                if (savedTheme === 'dark') {
+                    themeToggle.setAttribute('data-theme', 'dark');
+                }
+            }
+            
+            // Toggle theme when the button is clicked
+            if (themeToggle) {
+                themeToggle.addEventListener('click', function() {
+                    const currentTheme = htmlElement.getAttribute('data-theme');
+                    let newTheme = 'light';
+                    
+                    if (currentTheme !== 'dark') {
+                        newTheme = 'dark';
+                        themeToggle.setAttribute('data-theme', 'dark');
+                    } else {
+                        themeToggle.removeAttribute('data-theme');
+                    }
+                    
+                    htmlElement.setAttribute('data-theme', newTheme);
+                    localStorage.setItem('theme', newTheme);
+                });
+            }
+            
+            // Check if user is logged in
+            if (!window.userProfileService.isLoggedIn()) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Load user profile
+            loadUserProfile();
+            
+            // Avatar upload functionality
+            const avatarInput = document.getElementById('avatar-input');
+            const profileAvatar = document.getElementById('profile-avatar');
+            
+            avatarInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        profileAvatar.src = e.target.result;
+                        // Save to localStorage for now (in real app, upload to server)
+                        localStorage.setItem('user_avatar', e.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // Load saved avatar
+            const savedAvatar = localStorage.getItem('user_avatar');
+            if (savedAvatar) {
+                profileAvatar.src = savedAvatar;
+            }
+            
+            // Save profile functionality
+            document.getElementById('save-profile').addEventListener('click', async function() {
+                const profileData = {
+                    name: document.getElementById('profile-name-input').value,
+                    phone: document.getElementById('profile-phone-input').value,
+                    email: document.getElementById('profile-email-input').value,
+                    address: document.getElementById('profile-address-input').value,
+                    vehicleDetails: document.getElementById('profile-vehicle-input').value,
+                    licensePlate: document.getElementById('profile-license-input').value,
+                    notes: document.getElementById('profile-notes-input').value
+                };
+                
+                try {
+                    await window.userProfileService.updateUserProfile(profileData);
+                    showMessage('Profile updated successfully!', 'success');
+                } catch (error) {
+                    showMessage('Failed to update profile. Please try again.', 'error');
+                    console.error('Profile update error:', error);
+                }
+            });
+            
+            // Logout functionality
+            document.getElementById('logout-btn').addEventListener('click', function() {
+                localStorage.removeItem('rr_user_token');
+                localStorage.removeItem('user_avatar');
+                window.location.href = 'login.html';
+            });
+            
+            // Mobile menu functionality
+            const mobileMenu = document.querySelector('.mobile-menu');
+            const navLinks = document.querySelector('.nav-links');
+            
+            if (mobileMenu && navLinks) {
+                mobileMenu.addEventListener('click', function() {
+                    navLinks.classList.toggle('active');
+                });
+            }
+        });
+        
+        async function loadUserProfile() {
+            try {
+                const profileData = await window.userProfileService.getUserProfile();
+                
+                // Update profile display
+                document.getElementById('profile-name').textContent = profileData.name || 'User';
+                document.getElementById('profile-email').textContent = profileData.email || 'No email';
+                document.getElementById('profile-phone').textContent = profileData.phone || 'No phone';
+                
+                // Fill form fields
+                document.getElementById('profile-name-input').value = profileData.name || '';
+                document.getElementById('profile-phone-input').value = profileData.phone || '';
+                document.getElementById('profile-email-input').value = profileData.email || '';
+                document.getElementById('profile-address-input').value = profileData.address || '';
+                document.getElementById('profile-vehicle-input').value = profileData.vehicleDetails || '';
+                document.getElementById('profile-license-input').value = profileData.licensePlate || '';
+                document.getElementById('profile-notes-input').value = profileData.notes || '';
+                
+                // Update avatar if available
+                if (profileData.avatarUrl) {
+                    document.getElementById('profile-avatar').src = profileData.avatarUrl;
+                }
+                
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                showMessage('Failed to load profile data.', 'error');
+            }
+        }
+        
+        function showMessage(message, type) {
+            // Remove existing messages
+            const existingMessages = document.querySelectorAll('.success-message, .error-message');
+            existingMessages.forEach(msg => msg.remove());
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = type === 'success' ? 'success-message' : 'error-message';
+            messageDiv.textContent = message;
+            
+            const profileContainer = document.querySelector('.profile-container');
+            profileContainer.insertBefore(messageDiv, profileContainer.firstChild);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    messageDiv.remove();
+                }
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

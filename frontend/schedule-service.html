@@ -717,6 +717,11 @@
                     // Store booking data in localStorage for track page
                     localStorage.setItem('roadRescueBooking', JSON.stringify(bookingData));
                     
+                    // Also save to all bookings list for service history
+                    const allBookings = JSON.parse(localStorage.getItem('all_service_bookings') || '[]');
+                    allBookings.push(bookingData);
+                    localStorage.setItem('all_service_bookings', JSON.stringify(allBookings));
+                    
                     // Log booking data (in real app, send to server)
                     console.log('Scheduled Service Booking:', bookingData);
                     

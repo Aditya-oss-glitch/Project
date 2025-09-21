@@ -821,6 +821,16 @@
             // Save back to localStorage
             localStorage.setItem('completed_services', JSON.stringify(completedServices));
             
+            // Also update the all bookings list
+            const allBookings = JSON.parse(localStorage.getItem('all_service_bookings') || '[]');
+            const bookingIndex = allBookings.findIndex(b => b.trackingId === completedService.trackingId);
+            if (bookingIndex !== -1) {
+                allBookings[bookingIndex] = completedService;
+            } else {
+                allBookings.push(completedService);
+            }
+            localStorage.setItem('all_service_bookings', JSON.stringify(allBookings));
+            
             console.log('Service marked as completed and saved to history:', completedService);
           }
           

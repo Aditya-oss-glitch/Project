@@ -616,6 +616,9 @@
                 return;
             }
             
+            // Initialize sample data if none exists
+            initializeSampleData();
+            
             // Load user profile
             loadUserProfile();
             
@@ -659,7 +662,6 @@
             document.getElementById('save-profile').addEventListener('click', async function(e) {
                 e.preventDefault();
                 console.log('Save button clicked');
-                alert('Save button clicked! Check console for details.');
                 
                 const profileData = {
                     name: document.getElementById('profile-name-input').value,
@@ -762,6 +764,9 @@
             
             // Service History functionality
             document.getElementById('view-history-btn').addEventListener('click', function() {
+                // Refresh service count before showing history
+                const serviceHistory = getActualServiceHistory();
+                updateServiceCount(serviceHistory.length);
                 showServiceHistory();
             });
             
@@ -816,7 +821,8 @@
                 document.getElementById('profile-license').textContent = profileData.licensePlate || 'No license plate';
                 
                 // Update stats
-                document.getElementById('total-services').textContent = profileData.totalServices || '0';
+                const serviceHistory = getActualServiceHistory();
+                document.getElementById('total-services').textContent = serviceHistory.length;
                 document.getElementById('member-since').textContent = profileData.memberSince || new Date().getFullYear();
                 
                 // Fill form fields
@@ -989,8 +995,177 @@
                 });
             }
             
+            // Get all service bookings from localStorage (including old ones)
+            const allBookings = JSON.parse(localStorage.getItem('all_service_bookings') || '[]');
+            allBookings.forEach(booking => {
+                // Only add if not already in history
+                const exists = history.some(h => h.trackingId === booking.trackingId);
+                if (!exists) {
+                    history.push({
+                        ...booking,
+                        status: booking.status || 'Completed',
+                        date: booking.timestamp || booking.date
+                    });
+                }
+            });
+            
+            // Add some mock recent services for demonstration
+            const mockServices = [
+                {
+                    id: 'mock-1',
+                    serviceType: 'Battery Jump Start',
+                    service: 'battery',
+                    location: 'Downtown Area',
+                    vehicleDetails: '2020 Honda Civic - Silver',
+                    status: 'Completed',
+                    technician: 'Mike Johnson',
+                    date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
+                    cost: '$45.00',
+                    rating: 5,
+                    trackingId: 'RR-001'
+                },
+                {
+                    id: 'mock-2',
+                    serviceType: 'Tire Change',
+                    service: 'tire',
+                    location: 'Highway 101',
+                    vehicleDetails: '2020 Honda Civic - Silver',
+                    status: 'Completed',
+                    technician: 'Sarah Wilson',
+                    date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
+                    cost: '$75.00',
+                    rating: 4,
+                    trackingId: 'RR-002'
+                },
+                {
+                    id: 'mock-3',
+                    serviceType: 'Fuel Delivery',
+                    service: 'fuel',
+                    location: 'Main Street',
+                    vehicleDetails: '2020 Honda Civic - Silver',
+                    status: 'Completed',
+                    technician: 'John Smith',
+                    date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 1 week ago
+                    cost: '$35.00',
+                    rating: 5,
+                    trackingId: 'RR-003'
+                }
+            ];
+            
+            // Add mock services if no real services exist
+            if (history.length === 0) {
+                history.push(...mockServices);
+            }
+            
             // Sort by date (newest first)
-            return history.sort((a, b) => new Date(b.date || b.timestamp) - new Date(a.date || a.timestamp));
+            const sortedHistory = history.sort((a, b) => new Date(b.date || b.timestamp) - new Date(a.date || a.timestamp));
+            
+            // Update service count
+            updateServiceCount(sortedHistory.length);
+            
+            return sortedHistory;
+        }
+        
+        // Update service count in profile
+        function updateServiceCount(count) {
+            const totalServicesElement = document.getElementById('total-services');
+            if (totalServicesElement) {
+                totalServicesElement.textContent = count;
+            }
+        }
+        
+        // Initialize sample data for demonstration
+        function initializeSampleData() {
+            // Check if sample data already exists
+            const existingBookings = JSON.parse(localStorage.getItem('all_service_bookings') || '[]');
+            if (existingBookings.length > 0) {
+                return; // Sample data already exists
+            }
+            
+            // Create sample service bookings
+            const sampleBookings = [
+                {
+                    id: 'sample-1',
+                    serviceType: 'Battery Jump Start',
+                    service: 'battery',
+                    location: '123 Main Street, Downtown',
+                    vehicleDetails: '2020 Honda Civic - Silver',
+                    name: 'John Doe',
+                    phone: '+1-555-0123',
+                    email: 'john@example.com',
+                    status: 'Completed',
+                    technician: 'Mike Johnson',
+                    date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
+                    timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+                    cost: '$45.00',
+                    rating: 5,
+                    trackingId: 'RR-001',
+                    notes: 'Battery was completely dead, needed jump start'
+                },
+                {
+                    id: 'sample-2',
+                    serviceType: 'Tire Change',
+                    service: 'tire',
+                    location: '456 Oak Avenue, Midtown',
+                    vehicleDetails: '2020 Honda Civic - Silver',
+                    name: 'John Doe',
+                    phone: '+1-555-0123',
+                    email: 'john@example.com',
+                    status: 'Completed',
+                    technician: 'Sarah Wilson',
+                    date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days ago
+                    timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+                    cost: '$75.00',
+                    rating: 4,
+                    trackingId: 'RR-002',
+                    notes: 'Flat tire on front left, replaced with spare'
+                },
+                {
+                    id: 'sample-3',
+                    serviceType: 'Fuel Delivery',
+                    service: 'fuel',
+                    location: '789 Pine Street, Uptown',
+                    vehicleDetails: '2020 Honda Civic - Silver',
+                    name: 'John Doe',
+                    phone: '+1-555-0123',
+                    email: 'john@example.com',
+                    status: 'Completed',
+                    technician: 'John Smith',
+                    date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 1 week ago
+                    timestamp: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+                    cost: '$35.00',
+                    rating: 5,
+                    trackingId: 'RR-003',
+                    notes: 'Ran out of gas on highway, delivered 5 gallons'
+                },
+                {
+                    id: 'sample-4',
+                    serviceType: 'Lockout Service',
+                    service: 'lockout',
+                    location: '321 Elm Street, Downtown',
+                    vehicleDetails: '2020 Honda Civic - Silver',
+                    name: 'John Doe',
+                    phone: '+1-555-0123',
+                    email: 'john@example.com',
+                    status: 'In Progress',
+                    technician: 'Alex Brown',
+                    date: new Date().toISOString(), // Today
+                    timestamp: new Date().toISOString(),
+                    cost: '$60.00',
+                    rating: null,
+                    trackingId: 'RR-004',
+                    notes: 'Keys locked inside car, technician en route'
+                }
+            ];
+            
+            // Save sample data
+            localStorage.setItem('all_service_bookings', JSON.stringify(sampleBookings));
+            
+            // Also save completed services
+            const completedServices = sampleBookings.filter(s => s.status === 'Completed');
+            localStorage.setItem('completed_services', JSON.stringify(completedServices));
+            
+            console.log('Sample data initialized with', sampleBookings.length, 'services');
         }
 
         // Format date for display

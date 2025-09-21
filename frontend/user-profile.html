@@ -315,6 +315,21 @@
             color: #155724;
         }
         
+        .status-badge.in-progress {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+        
+        .status-badge.pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-badge.cancelled {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
         .rating {
             color: #ffc107;
             font-size: 1.2rem;
@@ -510,9 +525,6 @@
                     <button type="button" id="view-history-btn" class="btn btn-secondary">
                         <i class="fas fa-history"></i> Service History
                     </button>
-                    <button type="button" id="sync-profile-btn" class="btn btn-info" style="display: none;">
-                        <i class="fas fa-sync"></i> Sync with Server
-                    </button>
                     <button type="button" id="logout-btn" class="btn btn-danger">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </button>
@@ -594,9 +606,6 @@
                 window.location.href = 'login.html';
                 return;
             }
-            
-            // Initialize connection monitoring
-            monitorConnection();
             
             // Load user profile
             loadUserProfile();
@@ -688,10 +697,6 @@
                 showServiceHistory();
             });
             
-            // Sync Profile functionality
-            document.getElementById('sync-profile-btn').addEventListener('click', async function() {
-                await syncProfileWithServer();
-            });
             
             // Logout functionality
             document.getElementById('logout-btn').addEventListener('click', function() {
@@ -824,60 +829,8 @@
             }, 5000);
         }
 
-        // Sync profile with server
-        async function syncProfileWithServer() {
-            const syncBtn = document.getElementById('sync-profile-btn');
-            const originalText = syncBtn.innerHTML;
-            
-            try {
-                syncBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Syncing...';
-                syncBtn.disabled = true;
-                
-                // Get current profile data from form
-                const profileData = {
-                    name: document.getElementById('profile-name-input').value,
-                    phone: document.getElementById('profile-phone-input').value,
-                    email: document.getElementById('profile-email-input').value,
-                    address: document.getElementById('profile-address-input').value,
-                    vehicleDetails: document.getElementById('profile-vehicle-input').value,
-                    licensePlate: document.getElementById('profile-license-input').value,
-                    notes: document.getElementById('profile-notes-input').value
-                };
-                
-                // Try to sync with server
-                const updatedProfile = await window.userProfileService.updateUserProfile(profileData);
-                
-                if (updatedProfile.isOffline) {
-                    showMessage('Still offline. Profile saved locally.', 'error');
-                } else {
-                    showMessage('Profile synced with server successfully!', 'success');
-                    syncBtn.style.display = 'none';
-                }
-                
-            } catch (error) {
-                console.error('Sync error:', error);
-                showMessage('Failed to sync with server. Please try again.', 'error');
-            } finally {
-                syncBtn.innerHTML = originalText;
-                syncBtn.disabled = false;
-            }
-        }
 
-        // Monitor connection status
-        function monitorConnection() {
-            window.addEventListener('online', function() {
-                console.log('Connection restored');
-                showMessage('Connection restored! You can now sync your profile.', 'success');
-                document.getElementById('sync-profile-btn').style.display = 'inline-block';
-            });
-            
-            window.addEventListener('offline', function() {
-                console.log('Connection lost');
-                showMessage('Connection lost. Changes will be saved locally.', 'error');
-            });
-        }
-
-        // Show service history modal with API integration
+        // Show service history modal with actual booked services
         async function showServiceHistory() {
             try {
                 // Show loading state
@@ -895,24 +848,47 @@
                 document.body.appendChild(modal);
                 modal.style.display = 'flex';
 
-                // Get service history from API with fallback
-                const serviceHistory = await window.userProfileService.getServiceHistory();
+                // Get actual service history from localStorage
+                const serviceHistory = getActualServiceHistory();
+                
+                if (serviceHistory.length === 0) {
+                    // Show empty state
+                    modal.innerHTML = `
+                        <div class="modal-content" style="max-width: 600px;">
+                            <span class="close-modal" onclick="this.parentElement.parentElement.remove()">&times;</span>
+                            <h2><i class="fas fa-history"></i> Service History</h2>
+                            <div style="text-align: center; padding: 40px; color: #6c757d;">
+                                <i class="fas fa-history" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.5;"></i>
+                                <h3>No Services Yet</h3>
+                                <p>You haven't booked any services yet. Book your first service to see it here!</p>
+                                <button onclick="window.location.href='schedule-service.html'" class="btn btn-primary" style="margin-top: 20px;">
+                                    <i class="fas fa-plus"></i> Book a Service
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
                 
                 // Update modal with service history
                 const historyHTML = serviceHistory.map(service => `
                     <div class="history-item">
                         <div class="service-info">
-                            <h4>${service.service}</h4>
-                            <p>Date: ${service.date}</p>
-                            <p>Technician: ${service.technician}</p>
-                            ${service.location ? `<p>Location: ${service.location}</p>` : ''}
+                            <h4>${service.serviceType || service.service}</h4>
+                            <p>Date: ${formatDate(service.date || service.timestamp)}</p>
+                            <p>Location: ${service.location || 'Not specified'}</p>
+                            <p>Vehicle: ${service.vehicleDetails || 'Not specified'}</p>
+                            ${service.technician ? `<p>Technician: ${service.technician}</p>` : ''}
                             ${service.cost ? `<p>Cost: ${service.cost}</p>` : ''}
+                            ${service.notes ? `<p>Notes: ${service.notes}</p>` : ''}
                         </div>
                         <div class="service-status">
-                            <span class="status-badge completed">${service.status}</span>
-                            <div class="rating">
-                                ${'★'.repeat(service.rating)}${'☆'.repeat(5-service.rating)}
-                            </div>
+                            <span class="status-badge ${getStatusClass(service.status)}">${service.status || 'Pending'}</span>
+                            ${service.rating ? `
+                                <div class="rating">
+                                    ${'★'.repeat(service.rating)}${'☆'.repeat(5-service.rating)}
+                                </div>
+                            ` : ''}
                         </div>
                     </div>
                 `).join('');
@@ -938,13 +914,59 @@
                         <h2><i class="fas fa-history"></i> Service History</h2>
                         <div style="text-align: center; padding: 20px; color: #dc3545;">
                             <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 10px;"></i>
-                            <p>Unable to load service history. Please check your connection and try again.</p>
+                            <p>Unable to load service history. Please try again.</p>
                             <button onclick="showServiceHistory()" class="btn btn-primary" style="margin-top: 10px;">
                                 <i class="fas fa-refresh"></i> Try Again
                             </button>
                         </div>
                     </div>
                 `;
+            }
+        }
+
+        // Get actual service history from localStorage
+        function getActualServiceHistory() {
+            const history = [];
+            
+            // Get completed services from localStorage
+            const completedServices = JSON.parse(localStorage.getItem('completed_services') || '[]');
+            history.push(...completedServices);
+            
+            // Get current booking if exists
+            const currentBooking = JSON.parse(localStorage.getItem('roadRescueBooking') || 'null');
+            if (currentBooking) {
+                history.push({
+                    ...currentBooking,
+                    status: 'In Progress',
+                    date: currentBooking.timestamp
+                });
+            }
+            
+            // Sort by date (newest first)
+            return history.sort((a, b) => new Date(b.date || b.timestamp) - new Date(a.date || a.timestamp));
+        }
+
+        // Format date for display
+        function formatDate(dateString) {
+            if (!dateString) return 'Unknown';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Get status class for styling
+        function getStatusClass(status) {
+            switch (status?.toLowerCase()) {
+                case 'completed': return 'completed';
+                case 'in progress': return 'in-progress';
+                case 'pending': return 'pending';
+                case 'cancelled': return 'cancelled';
+                default: return 'pending';
             }
         }
         

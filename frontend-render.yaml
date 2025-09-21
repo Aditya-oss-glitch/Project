@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: roadrescue360-frontend
+    env: static
+    plan: free
+    buildCommand: echo "No build needed for static site"
+    staticPublishPath: .
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

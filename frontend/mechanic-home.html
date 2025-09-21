@@ -774,6 +774,16 @@
         }
         
         try {
+          // First, get the job details before marking as complete
+          const jobRes = await fetch(`${BASE_URL}/api/services/${jobId}`, {
+            headers: { ...authHeader() }
+          });
+          
+          let jobDetails = null;
+          if (jobRes.ok) {
+            jobDetails = await jobRes.json();
+          }
+          
           const res = await fetch(`${BASE_URL}/api/services/${jobId}/status`, {
             method: "PUT",
             headers: { ...authHeader(), "Content-Type": "application/json" },
@@ -783,6 +793,35 @@
           if (!res.ok) {
             const error = await res.json();
             throw new Error(error.error || "Failed to mark job as complete");
+          }
+          
+          // Save completed service to localStorage for user's service history
+          if (jobDetails) {
+            const completedService = {
+              id: jobDetails._id || jobId,
+              serviceType: jobDetails.serviceType || jobDetails.service,
+              service: jobDetails.service,
+              location: jobDetails.location,
+              vehicleDetails: jobDetails.vehicleDetails,
+              name: jobDetails.name,
+              phone: jobDetails.phone,
+              email: jobDetails.email,
+              notes: jobDetails.notes,
+              status: 'Completed',
+              technician: 'Current Technician', // You can get this from the technician profile
+              date: new Date().toISOString(),
+              completedAt: new Date().toISOString(),
+              trackingId: jobDetails.trackingId
+            };
+            
+            // Get existing completed services
+            const completedServices = JSON.parse(localStorage.getItem('completed_services') || '[]');
+            completedServices.push(completedService);
+            
+            // Save back to localStorage
+            localStorage.setItem('completed_services', JSON.stringify(completedServices));
+            
+            console.log('Service marked as completed and saved to history:', completedService);
           }
           
           // Show success message

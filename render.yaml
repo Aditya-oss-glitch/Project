@@ -18,7 +18,7 @@ services:
         value: 7d
       - key: PORT
         value: 3000
-    healthCheckPath: /api/pricing
+    healthCheckPath: /api/health
 
 databases:
   - name: roadrescue360-db

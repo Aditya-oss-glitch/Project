@@ -55,7 +55,14 @@ class UserProfileService {
                 return this.getFallbackProfileData();
             }
 
-            const profileData = JSON.parse(responseText);
+            let profileData;
+            try {
+                profileData = JSON.parse(responseText);
+            } catch (parseError) {
+                console.error('Invalid JSON response:', parseError);
+                console.error('Response text:', responseText);
+                return this.getFallbackProfileData();
+            }
             this.profileData = profileData;
             
             // Save to localStorage as backup
@@ -135,7 +142,14 @@ class UserProfileService {
                 return this.saveProfileLocally(profileData);
             }
 
-            const updatedProfile = JSON.parse(responseText);
+            let updatedProfile;
+            try {
+                updatedProfile = JSON.parse(responseText);
+            } catch (parseError) {
+                console.error('Invalid JSON response:', parseError);
+                console.error('Response text:', responseText);
+                return this.saveProfileLocally(profileData);
+            }
             this.profileData = updatedProfile;
             
             // Also save to localStorage as backup

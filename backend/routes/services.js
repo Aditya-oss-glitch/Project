@@ -35,7 +35,7 @@ router.post("/", async (req, res) => {
       type,
       location,
       address,
-      vehicleDetails,
+      vehicleDetails: typeof vehicleDetails === 'string' ? { description: vehicleDetails } : vehicleDetails,
       contactName,
       contactPhone,
       description,
@@ -348,4 +348,65 @@ router.put("/:id/assign/self", authTechnician, async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
+
+/**
+ * @route   GET /api/services/:id/cost
+ * @desc    Calculate service cost
+ * @access  Public
+ */
+router.get("/:id/cost", async (req, res) => {
+  try {
+    const service = await Service.findById(req.params.id);
+    
+    if (!service) {
+      return res.status(404).json({ error: "Service not found" });
+    }
+
+    // Base pricing
+    const basePrices = {
+      battery: 499,
+      fuel: 399,
+      mechanical: 599,
+      towing: 699,
+      lockout: 449,
+      tire: 499,
+      accident: 749,
+      emergency: 999
+    };
+
+    const pricePerKm = {
+      battery: 15,
+      fuel: 12,
+      mechanical: 18,
+      towing: 25,
+      lockout: 15,
+      tire: 15,
+      accident: 30,
+      emergency: 35
+    };
+
+    const basePrice = basePrices[service.type] || basePrices.mechanical;
+    const kmPrice = pricePerKm[service.type] || pricePerKm.mechanical;
+    
+    // Calculate distance (simplified - in real app, calculate actual distance)
+    const distance = 5; // Default 5km
+    const distanceCost = distance * kmPrice;
+    
+    const totalCost = basePrice + distanceCost;
+    
+    res.json({
+      serviceId: service._id,
+      type: service.type,
+      basePrice,
+      distance,
+      distanceCost,
+      totalCost,
+      currency: 'INR'
+    });
+  } catch (error) {
+    console.error("❌ Error calculating cost:", error.message);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 module.exports = router;

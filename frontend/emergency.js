@@ -62,8 +62,30 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+   // Pre-fill emergency form with user data
+   function prefillEmergencyForm() {
+       if (window.userProfileService && window.userProfileService.isLoggedIn() && window.userProfileService.profileData) {
+           const profile = window.userProfileService.profileData;
+           
+           // Pre-fill phone number
+           const phoneField = document.getElementById('phone');
+           if (phoneField && profile.phone && !phoneField.value) {
+               phoneField.value = profile.phone;
+           }
+           
+           // Pre-fill vehicle info
+           const vehicleField = document.getElementById('vehicle-info');
+           if (vehicleField && profile.vehicleDetails && !vehicleField.value) {
+               vehicleField.value = profile.vehicleDetails;
+           }
+       }
+   }
+
    // Handle emergency form submission
     if (emergencyForm) {
+        // Pre-fill form when it loads
+        prefillEmergencyForm();
+        
     emergencyForm.addEventListener("submit", async function (e) {
         e.preventDefault();
 
@@ -82,15 +104,38 @@ document.addEventListener('DOMContentLoaded', function() {
             vehicleInfo: document.getElementById("vehicle-info").value,
         };
 
+        const headers = { "Content-Type": "application/json" };
+        
+        // Add authentication if user is logged in
+        if (window.userProfileService && window.userProfileService.isLoggedIn()) {
+            const authHeaders = window.userProfileService.getAuthHeaders();
+            Object.assign(headers, authHeaders);
+        }
+        
         const res = await fetch(`${BASE_URL}/api/emergency`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: headers,
             body: JSON.stringify(data),
         });
 
-        if (!res.ok) throw new Error("Failed to submit SOS request");
+        if (!res.ok) {
+            const errorText = await res.text();
+            let errorMessage = "Failed to submit SOS request";
+            try {
+                const errorData = JSON.parse(errorText);
+                errorMessage = errorData.error || errorMessage;
+            } catch (e) {
+                errorMessage = errorText || `HTTP ${res.status}: ${res.statusText}`;
+            }
+            throw new Error(errorMessage);
+        }
 
-        const result = await res.json();
+        const responseText = await res.text();
+        if (!responseText) {
+            throw new Error("Empty response from server");
+        }
+
+        const result = JSON.parse(responseText);
         transformToStatusView(result.requestId);
 
         } catch (err) {
@@ -374,10 +419,14 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Simulate technician assignment in tracking section
     function simulateTechnicianAssignment() {
-        // Update technician name
+        // Update technician name with dynamic data
         const technicianName = document.getElementById('technician-name');
         if (technicianName) {
-            technicianName.textContent = 'Alex Johnson';
+            if (window.technicianService) {
+                technicianName.textContent = window.technicianService.getRandomTechnicianName();
+            } else {
+                technicianName.textContent = 'Technician';
+            }
         }
         
         // Update ETA

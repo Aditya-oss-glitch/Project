@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: roadrescue360-backend
+    env: node
+    plan: free
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        fromDatabase:
+          name: roadrescue360-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: PORT
+        value: 3000
+    healthCheckPath: /api/pricing
+
+databases:
+  - name: roadrescue360-db
+    plan: free
+    databaseName: roadrescue360

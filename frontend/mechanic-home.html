@@ -274,7 +274,7 @@
         const container = document.getElementById("assignments");
         container.innerHTML = "";
         try {
-          const res = await fetch("/api/services/assigned/me", {
+          const res = await fetch(`${BASE_URL}/api/services/assigned/me`, {
             headers: { ...authHeader() },
           });
           const services = await res.json();
@@ -384,7 +384,7 @@
         const box = document.getElementById("me-profile");
         box.textContent = "Loading...";
         try {
-          const res = await fetch("/api/auth/technician/me", {
+          const res = await fetch(`${BASE_URL}/api/auth/technician/me`, {
             headers: { ...authHeader() },
           });
           const tech = await res.json();
@@ -453,7 +453,7 @@
       let lastAssignmentCount = 0;
       setInterval(async () => {
         try {
-          const res = await fetch("/api/services/assigned/me", {
+          const res = await fetch(`${BASE_URL}/api/services/assigned/me`, {
             headers: { ...authHeader() },
           });
           const services = await res.json();
@@ -546,7 +546,7 @@
           };
 
           console.log("🔍 Form submission - payload:", payload);
-          const res = await fetch("/api/auth/technician/me", {
+          const res = await fetch(`${BASE_URL}/api/auth/technician/me`, {
             method: "PUT",
             headers: { "Content-Type": "application/json", ...authHeader() },
             body: JSON.stringify(payload),
@@ -566,7 +566,7 @@
           if (!file) return alert("Choose an image");
           const fd = new FormData();
           fd.append("avatar", file);
-          const res = await fetch("/api/auth/technician/avatar", {
+          const res = await fetch(`${BASE_URL}/api/auth/technician/avatar`, {
             method: "POST",
             headers: { ...authHeader() },
             body: fd,
@@ -578,13 +578,13 @@
 
       // MD helpers
       async function mdGet(path) {
-        const r = await fetch("/api/md" + path, {
+        const r = await fetch(`${BASE_URL}/api/md` + path, {
           headers: { ...authHeader(), "Content-Type": "application/json" },
         });
         return r.json();
       }
       async function mdPost(path, body) {
-        const r = await fetch("/api/md" + path, {
+        const r = await fetch(`${BASE_URL}/api/md` + path, {
           method: "POST",
           headers: { ...authHeader(), "Content-Type": "application/json" },
           body: JSON.stringify(body),
@@ -592,7 +592,7 @@
         return r.json();
       }
       async function mdPut(path, body) {
-        const r = await fetch("/api/md" + path, {
+        const r = await fetch(`${BASE_URL}/api/md` + path, {
           method: "PUT",
           headers: { ...authHeader(), "Content-Type": "application/json" },
           body: JSON.stringify(body),

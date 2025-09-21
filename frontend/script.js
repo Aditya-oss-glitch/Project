@@ -1,24 +1,107 @@
-// Global variables and mock API
-// API helpers (using your backend)
+// Global variables and API helpers
 const API = {
   createService: async (data) => {
-    const res = await fetch(`${BASE_URL}/api/services`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new Error("Failed to create service");
-    return await res.json();
+    try {
+      const headers = { "Content-Type": "application/json" };
+      
+      // Add authentication if user is logged in
+      if (window.userProfileService && window.userProfileService.isLoggedIn()) {
+        const authHeaders = window.userProfileService.getAuthHeaders();
+        Object.assign(headers, authHeaders);
+      }
+      
+      const res = await fetch(`${BASE_URL}/api/services`, {
+        method: "POST",
+        headers: headers,
+        body: JSON.stringify(data),
+      });
+      
+      if (!res.ok) {
+        const errorText = await res.text();
+        let errorMessage = "Failed to create service";
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.error || errorMessage;
+        } catch (e) {
+          errorMessage = errorText || `HTTP ${res.status}: ${res.statusText}`;
+        }
+        throw new Error(errorMessage);
+      }
+      
+      const responseText = await res.text();
+      if (!responseText) {
+        throw new Error("Empty response from server");
+      }
+      
+      return JSON.parse(responseText);
+    } catch (error) {
+      console.error("API Error:", error);
+      throw error;
+    }
   },
 
   getServices: async () => {
-    const res = await fetch(`${BASE_URL}/api/services`);
-    if (!res.ok) throw new Error("Failed to fetch services");
-    return await res.json();
+    try {
+      const res = await fetch(`${BASE_URL}/api/services`);
+      
+      if (!res.ok) {
+        const errorText = await res.text();
+        let errorMessage = "Failed to fetch services";
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.error || errorMessage;
+        } catch (e) {
+          errorMessage = errorText || `HTTP ${res.status}: ${res.statusText}`;
+        }
+        throw new Error(errorMessage);
+      }
+      
+      const responseText = await res.text();
+      if (!responseText) {
+        return [];
+      }
+      
+      return JSON.parse(responseText);
+    } catch (error) {
+      console.error("API Error:", error);
+      throw error;
+    }
+  },
+
+  createEmergency: async (data) => {
+    try {
+      const res = await fetch(`${BASE_URL}/api/emergency`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      
+      if (!res.ok) {
+        const errorText = await res.text();
+        let errorMessage = "Failed to create emergency request";
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.error || errorMessage;
+        } catch (e) {
+          errorMessage = errorText || `HTTP ${res.status}: ${res.statusText}`;
+        }
+        throw new Error(errorMessage);
+      }
+      
+      const responseText = await res.text();
+      if (!responseText) {
+        throw new Error("Empty response from server");
+      }
+      
+      return JSON.parse(responseText);
+    } catch (error) {
+      console.error("API Error:", error);
+      throw error;
+    }
   },
 
   saveService: async (service) => {
-    // optional: if you want to save bookings locally as well
+    // Save bookings locally as backup
     const savedServices = localStorage.getItem("roadrescue_services");
     const services = savedServices ? JSON.parse(savedServices) : [];
     services.push(service);
@@ -158,9 +241,9 @@ function enhanceServicesSection() {
 /**
  * Show Service Details Modal
  */
-function showServiceDetailsModal(serviceType) {
-    // Get service information based on service type
-    const serviceInfo = getServiceInfo(serviceType);
+async function showServiceDetailsModal(serviceType) {
+    // Get service information based on service type (now dynamic)
+    const serviceInfo = await getServiceInfo(serviceType);
     
     // Create modal element
     const modal = document.createElement('div');
@@ -257,125 +340,22 @@ function showServiceDetailsModal(serviceType) {
 }
 
 /**
- * Get service information based on service type
+ * Get service information based on service type (now dynamic)
  */
-function getServiceInfo(serviceType) {
-    const serviceData = {
-        battery: {
-            title: "Battery Service",
-            icon: "fas fa-battery-full",
-            description: "Our battery service offers quick and reliable solutions for all your vehicle battery needs. Whether you need a jump-start, a battery replacement, or a thorough diagnostic check, our technicians are equipped with all the necessary tools and expertise.",
-            features: [
-                "24/7 emergency service",
-                "On-site battery replacement",
-                "Jump-starting service",
-                "Battery testing and diagnosis",
-                "All battery types and models supported",
-                "Quick response time within 30 minutes",
-                "90-day warranty on battery replacements"
-            ],
-            price: 499,
-            pricePerKm: 15
-        },
-        fuel: {
-            title: "Fuel Delivery",
-            icon: "fas fa-gas-pump",
-            description: "Running out of fuel is a common issue that can happen to anyone. Our fuel delivery service ensures you're not stranded when your tank runs empty. We deliver the type of fuel your vehicle needs, directly to your location.",
-            features: [
-                "Fast delivery within 30 minutes",
-                "All fuel types available (petrol, diesel, premium)",
-                "Fuel quality guarantee",
-                "24/7 availability",
-                "Exact amount of fuel you need",
-                "Additional engine check if needed",
-                "No hidden fees or surcharges"
-            ],
-            price: 399,
-            pricePerKm: 12
-        },
-        mechanical: {
-            title: "Mechanical Help",
-            icon: "fas fa-tools",
-            description: "Our mobile mechanical service brings the repair shop to you. Our certified mechanics can diagnose and fix a wide range of vehicle issues on the spot, saving you time and the hassle of towing your vehicle to a garage.",
-            features: [
-                "Certified mechanics with years of experience",
-                "On-site diagnostics using advanced tools",
-                "Minor repairs executed immediately",
-                "Common replacement parts in stock",
-                "Transparent pricing with no hidden costs",
-                "Detailed report of issues found",
-                "Follow-up service recommendations if needed"
-            ],
-            price: 599,
-            pricePerKm: 18
-        },
-        towing: {
-            title: "Towing Service",
-            icon: "fas fa-truck",
-            description: "When your vehicle can't be repaired on the spot, our professional towing service ensures it's transported safely to your preferred location. We use modern equipment to ensure your vehicle is moved without any additional damage.",
-            features: [
-                "All vehicle types supported (cars, SUVs, bikes)",
-                "Damage-free towing guarantee",
-                "Rapid response time",
-                "Long-distance towing available",
-                "Enclosed transport for premium vehicles",
-                "Winching and recovery from difficult locations",
-                "Insurance-approved service"
-            ],
-            price: 699,
-            pricePerKm: 25
-        },
-        lockout: {
-            title: "Lockout Service",
-            icon: "fas fa-key",
-            description: "Being locked out of your vehicle can be frustrating. Our lockout service provides quick access to your vehicle without causing any damage to the locks or doors, using specialized tools and techniques.",
-            features: [
-                "Damage-free unlocking techniques",
-                "Key replacement available",
-                "Smart key programming on-site",
-                "20-minute average response time",
-                "All vehicle makes and models supported",
-                "24/7 emergency service",
-                "Advanced security bypass methods"
-            ],
-            price: 449,
-            pricePerKm: 15
-        },
-        tire: {
-            title: "Tire Change",
-            icon: "fas fa-wrench",
-            description: "Flat tires and blowouts can happen unexpectedly. Our tire change service provides quick replacement of your flat tire with your spare, or repair of minor punctures on the spot to get you back on the road quickly.",
-            features: [
-                "Spare tire installation",
-                "Tire repair for minor punctures",
-                "New tire delivery option if needed",
-                "Tire pressure monitoring",
-                "Proper torque application",
-                "Balancing check",
-                "Future tire health recommendations"
-            ],
-            price: 499,
-            pricePerKm: 15
-        },
-        accident: {
-            title: "Accident Recovery",
-            icon: "fas fa-car-crash",
-            description: "After an accident, our recovery team provides comprehensive assistance, from recovering your damaged vehicle to helping with insurance procedures and ensuring you have all the documentation you need.",
-            features: [
-                "Immediate response priority",
-                "Vehicle recovery from any location",
-                "Insurance coordination assistance",
-                "Medical services coordination if needed",
-                "Temporary transportation arrangement",
-                "Post-accident safety check",
-                "Detailed incident documentation"
-            ],
-            price: 749,
-            pricePerKm: 30
-        }
+async function getServiceInfo(serviceType) {
+    if (window.pricingService) {
+        return await window.pricingService.getServiceInfo(serviceType);
+    }
+    
+    // Fallback if pricing service not available
+    return {
+        title: serviceType.charAt(0).toUpperCase() + serviceType.slice(1) + " Service",
+        icon: "fas fa-tools",
+        description: "Professional roadside assistance service",
+        features: ["24/7 availability", "Quick response", "Professional service"],
+        price: 499,
+        pricePerKm: 15
     };
-
-    return serviceData[serviceType] || serviceData.battery;
 }
 
 /**
@@ -420,9 +400,9 @@ function enhancePaymentButtons() {
 /**
  * Show Payment Modal
  */
-function showPaymentModal(serviceType) {
-    // Get service information based on service type
-    const serviceInfo = getServiceInfo(serviceType);
+async function showPaymentModal(serviceType) {
+    // Get service information based on service type (now dynamic)
+    const serviceInfo = await getServiceInfo(serviceType);
     
     // Create modal element
     const modal = document.createElement('div');
@@ -442,31 +422,30 @@ function showPaymentModal(serviceType) {
                     </div>
                     <div class="summary-item">
                         <span>Base Fee:</span>
-                        <span>₹${serviceInfo.price}</span>
+                        <span>${window.pricingService ? window.pricingService.formatPrice(serviceInfo.price) : '₹' + serviceInfo.price}</span>
                     </div>
                     <div class="summary-item">
                         <span>Distance Fee:</span>
-                        <span>₹${serviceInfo.pricePerKm}/km (calculated on completion)</span>
+                        <span>${window.pricingService ? window.pricingService.formatPrice(serviceInfo.pricePerKm) : '₹' + serviceInfo.pricePerKm}/km (calculated on completion)</span>
                     </div>
                 </div>
                 
                 <div class="booking-form">
-                    <h3>Your Information</h3>
+                    <h3>Service Details</h3>
                     <div class="form-group">
-                        <label for="user-name">Your Name</label>
-                        <input type="text" id="user-name" placeholder="Enter your name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="user-phone">Phone Number</label>
-                        <input type="tel" id="user-phone" placeholder="Enter your phone number" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="user-location">Your Location</label>
-                        <input type="text" id="user-location" placeholder="Enter your location" required>
+                        <label for="user-location">Service Location</label>
+                        <input type="text" id="user-location" placeholder="Enter service location" required>
+                        <button type="button" class="secondary-button use-current-location" onclick="useCurrentLocation()">
+                            <i class="fas fa-location-arrow"></i> Use Current Location
+                        </button>
                     </div>
                     <div class="form-group">
                         <label for="vehicle-details">Vehicle Details</label>
-                        <textarea id="vehicle-details" placeholder="Make, model, year, etc." required></textarea>
+                        <textarea id="vehicle-details" placeholder="Make, model, year, license plate, etc." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="service-description">Service Description</label>
+                        <textarea id="service-description" placeholder="Describe the issue or service needed"></textarea>
                     </div>
                 </div>
             </div>
@@ -498,6 +477,43 @@ function showPaymentModal(serviceType) {
         });
     });
 
+    // Pre-fill form with user data if logged in
+    if (window.userProfileService && window.userProfileService.isLoggedIn() && window.userProfileService.profileData) {
+        setTimeout(() => {
+            const profile = window.userProfileService.profileData;
+            
+            // Pre-fill name fields
+            const nameFields = modal.querySelectorAll('input[id*="name"], input[id*="Name"]');
+            nameFields.forEach(field => {
+                if (profile.name && !field.value) field.value = profile.name;
+            });
+            
+            // Pre-fill phone fields
+            const phoneFields = modal.querySelectorAll('input[id*="phone"], input[id*="Phone"]');
+            phoneFields.forEach(field => {
+                if (profile.phone && !field.value) field.value = profile.phone;
+            });
+            
+            // Pre-fill email fields
+            const emailFields = modal.querySelectorAll('input[id*="email"], input[id*="Email"]');
+            emailFields.forEach(field => {
+                if (profile.email && !field.value) field.value = profile.email;
+            });
+            
+            // Pre-fill location fields
+            const locationFields = modal.querySelectorAll('input[id*="location"], input[id*="Location"]');
+            locationFields.forEach(field => {
+                if (profile.address && !field.value) field.value = profile.address;
+            });
+            
+            // Pre-fill vehicle fields
+            const vehicleFields = modal.querySelectorAll('textarea[id*="vehicle"], input[id*="vehicle"]');
+            vehicleFields.forEach(field => {
+                if (profile.vehicleDetails && !field.value) field.value = profile.vehicleDetails;
+            });
+        }, 100);
+    }
+
     // Submit booking functionality
     const submitButton = modal.querySelector('.submit-booking');
     if (submitButton) {
@@ -517,31 +533,87 @@ function showPaymentModal(serviceType) {
             submitButton.textContent = 'Processing...';
             submitButton.disabled = true;
             
-            // Simulate API call
-            API.createService({
-                name: nameInput.value,
-                phone: phoneInput.value,
-                location: locationInput.value,
-                vehicle: vehicleInput.value,
-                serviceType: serviceType,
-            }).then(service => {
+        // Get current location dynamically
+        let location = null;
+        try {
+            if (window.locationService) {
+                const currentLocation = await window.locationService.getCurrentLocation();
+                location = window.locationService.formatLocationForAPI(currentLocation);
+            } else {
+                throw new Error('Location service not available');
+            }
+        } catch (error) {
+            console.error('Could not get current location:', error);
+            throw new Error('Location is required for service creation');
+        }
+
+            // Get user profile data
+            const userProfile = window.userProfileService?.profileData || {};
+            
+            // Create service request
+            const serviceData = {
+                type: serviceType,
+                contactName: userProfile.name || 'User',
+                contactPhone: userProfile.phone || '',
+                address: locationInput.value,
+                vehicleDetails: vehicleInput.value,
+                description: document.getElementById('service-description')?.value || `Service request for ${serviceType}`,
+                location: location,
+                userId: userProfile.id || null
+            };
+            
+            API.createService(serviceData).then(service => {
                 modal.style.display = "none";
 
-                showNotification(`Your ${service.title} request has been confirmed!`, "success");
+                showNotification(`Your ${service.type} service request has been confirmed!`, "success");
+
+                // Store service data for payment after completion
+                if (window.paymentService) {
+                    window.paymentService.pendingPayments.set(service._id, service);
+                }
 
                 // Redirect to tracking page
                 window.location.href = "#tracking";
 
-                // Example: update tracking info
-                const technicianName = document.getElementById("technician-name");
-                const etaElement = document.getElementById("eta");
-                const statusBadge = document.querySelector(".status-badge");
+                // Update tracking info with dynamic data
+                if (window.technicianService && service.assignedTechnician) {
+                    window.technicianService.getTechnicianData(service.assignedTechnician).then(technician => {
+                        window.technicianService.updateTechnicianDisplay(technician);
+                        
+                        // Calculate ETA if we have location data
+                        if (service.location && service.location.coordinates) {
+                            const distance = window.locationService ? 
+                                window.locationService.calculateDistance(
+                                    service.location.coordinates[1], // lat
+                                    service.location.coordinates[0], // lng
+                                    service.location.coordinates[1], // same for now
+                                    service.location.coordinates[0]
+                                ) : 5; // default 5km
+                            
+                            const eta = window.technicianService.calculateETA(distance);
+                            const etaElement = document.getElementById("eta");
+                            if (etaElement) etaElement.textContent = `${eta} minutes`;
+                        }
+                        
+                        const statusBadge = document.querySelector(".status-badge");
+                        if (statusBadge) {
+                            statusBadge.textContent = window.technicianService.getStatusMessage(service.status);
+                            statusBadge.className = "status-badge active";
+                        }
+                    });
+                } else {
+                    // Fallback to random technician name
+                    const technicianName = document.getElementById("technician-name");
+                    const etaElement = document.getElementById("eta");
+                    const statusBadge = document.querySelector(".status-badge");
 
-                if (technicianName) technicianName.textContent = "John Smith";
-                if (etaElement) etaElement.textContent = "15 minutes";
-                if (statusBadge) {
-                statusBadge.textContent = "On the way";
-                statusBadge.className = "status-badge active";
+                    if (technicianName) technicianName.textContent = window.technicianService ? 
+                        window.technicianService.getRandomTechnicianName() : "Technician";
+                    if (etaElement) etaElement.textContent = "15 minutes";
+                    if (statusBadge) {
+                        statusBadge.textContent = "On the way";
+                        statusBadge.className = "status-badge active";
+                    }
                 }
             }).catch(err => {
                 console.error(err);
@@ -566,8 +638,180 @@ function showPaymentModal(serviceType) {
     });
 }
 
+// Use current location function
+async function useCurrentLocation() {
+    try {
+        if (window.locationService) {
+            const location = await window.locationService.getCurrentLocation();
+            const locationInput = document.getElementById('user-location');
+            if (locationInput) {
+                locationInput.value = location.address || `${location.latitude}, ${location.longitude}`;
+            }
+        } else {
+            alert('Location service not available');
+        }
+    } catch (error) {
+        console.error('Error getting current location:', error);
+        alert('Could not get current location. Please enter manually.');
+    }
+}
+
+// Pre-fill form function
+function prefillFormWithUserData(formElement) {
+    if (window.userProfileService && window.userProfileService.isLoggedIn() && window.userProfileService.profileData) {
+        const profile = window.userProfileService.profileData;
+        
+        // Pre-fill name fields
+        const nameFields = formElement.querySelectorAll('input[id*="name"], input[id*="Name"]');
+        nameFields.forEach(field => {
+            if (profile.name && !field.value) field.value = profile.name;
+        });
+        
+        // Pre-fill phone fields
+        const phoneFields = formElement.querySelectorAll('input[id*="phone"], input[id*="Phone"]');
+        phoneFields.forEach(field => {
+            if (profile.phone && !field.value) field.value = profile.phone;
+        });
+        
+        // Pre-fill email fields
+        const emailFields = formElement.querySelectorAll('input[id*="email"], input[id*="Email"]');
+        emailFields.forEach(field => {
+            if (profile.email && !field.value) field.value = profile.email;
+        });
+        
+        // Pre-fill location fields
+        const locationFields = formElement.querySelectorAll('input[id*="location"], input[id*="Location"]');
+        locationFields.forEach(field => {
+            if (profile.address && !field.value) field.value = profile.address;
+        });
+        
+        // Pre-fill vehicle fields
+        const vehicleFields = formElement.querySelectorAll('textarea[id*="vehicle"], input[id*="vehicle"]');
+        vehicleFields.forEach(field => {
+            if (profile.vehicleDetails && !field.value) field.value = profile.vehicleDetails;
+        });
+    }
+}
+
+// Initialize services
+async function initializeServices() {
+    try {
+        // Initialize user profile service first
+        if (window.userProfileService) {
+            await window.userProfileService.initialize();
+        }
+        
+        // Initialize pricing service
+        if (window.pricingService) {
+            await window.pricingService.initialize();
+        }
+        
+        // Initialize location service
+        if (window.locationService) {
+            await window.locationService.getCurrentLocation();
+        }
+        
+        // Update city display
+        if (window.locationService && window.locationService.currentLocation) {
+            const cityElements = document.querySelectorAll('#service-city, #main-office-city');
+            cityElements.forEach(el => {
+                if (el) el.textContent = window.locationService.currentLocation.city || 'Delhi NCR';
+            });
+        }
+        
+        // Pre-fill forms with user data
+        if (window.userProfileService && window.userProfileService.isLoggedIn()) {
+            // Pre-fill any existing forms
+            setTimeout(() => {
+                const forms = document.querySelectorAll('form');
+                forms.forEach(form => {
+                    if (form.id) {
+                        window.userProfileService.prefillForm(form.id);
+                    }
+                });
+                
+                // Also pre-fill individual input fields
+                const nameFields = document.querySelectorAll('input[id*="name"], input[id*="Name"]');
+                const phoneFields = document.querySelectorAll('input[id*="phone"], input[id*="Phone"]');
+                const emailFields = document.querySelectorAll('input[id*="email"], input[id*="Email"]');
+                const locationFields = document.querySelectorAll('input[id*="location"], input[id*="Location"]');
+                const vehicleFields = document.querySelectorAll('textarea[id*="vehicle"], input[id*="vehicle"]');
+                
+                if (window.userProfileService.profileData) {
+                    const profile = window.userProfileService.profileData;
+                    
+                    nameFields.forEach(field => {
+                        if (profile.name && !field.value) field.value = profile.name;
+                    });
+                    
+                    phoneFields.forEach(field => {
+                        if (profile.phone && !field.value) field.value = profile.phone;
+                    });
+                    
+                    emailFields.forEach(field => {
+                        if (profile.email && !field.value) field.value = profile.email;
+                    });
+                    
+                    locationFields.forEach(field => {
+                        if (profile.address && !field.value) field.value = profile.address;
+                    });
+                    
+                    vehicleFields.forEach(field => {
+                        if (profile.vehicleDetails && !field.value) field.value = profile.vehicleDetails;
+                    });
+                }
+            }, 1000);
+        }
+        
+        // Set up observer to pre-fill dynamically created forms
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                mutation.addedNodes.forEach((node) => {
+                    if (node.nodeType === 1) { // Element node
+                        // Check if it's a form or contains forms
+                        if (node.tagName === 'FORM' || node.querySelector && node.querySelector('form')) {
+                            setTimeout(() => {
+                                const forms = node.tagName === 'FORM' ? [node] : node.querySelectorAll('form');
+                                forms.forEach(form => {
+                                    prefillFormWithUserData(form);
+                                });
+                            }, 100);
+                        }
+                    }
+                });
+            });
+        });
+        
+        // Start observing
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+        
+        console.log('Services initialized successfully');
+        
+        // Test pre-filling
+        setTimeout(() => {
+            console.log('Testing pre-filling...');
+            console.log('User logged in:', window.userProfileService?.isLoggedIn());
+            console.log('Profile data:', window.userProfileService?.profileData);
+            
+            // Pre-fill any existing forms
+            const forms = document.querySelectorAll('form');
+            console.log('Found forms:', forms.length);
+            forms.forEach(form => {
+                prefillFormWithUserData(form);
+            });
+        }, 2000);
+    } catch (error) {
+        console.warn('Service initialization failed:', error);
+    }
+}
+
 // Main initialization
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize services first
+    initializeServices();
     // DOM Elements - declare only once
     const themeToggle = document.getElementById('theme-toggle');
     const htmlElement = document.documentElement;
@@ -617,8 +861,47 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    // Add event listeners for form pre-filling
+    document.addEventListener('click', function(e) {
+        // Check if clicked element opens a form
+        if (e.target.matches('.book-now, .learn-more, .payment-btn, .service-link')) {
+            setTimeout(() => {
+                // Pre-fill any forms that might have been created
+                const forms = document.querySelectorAll('form');
+                forms.forEach(form => {
+                    prefillFormWithUserData(form);
+                });
+            }, 500);
+        }
+    });
     
     // Make functions globally available
     window.showServiceDetailsModal = showServiceDetailsModal;
     window.showPaymentModal = showPaymentModal;
+    window.prefillFormWithUserData = prefillFormWithUserData;
+    window.useCurrentLocation = useCurrentLocation;
 });
+
+// Debug function for testing pre-fill
+function testPrefill() {
+    console.log('Testing pre-fill functionality...');
+    console.log('User Profile Service:', window.userProfileService);
+    console.log('Is Logged In:', window.userProfileService?.isLoggedIn());
+    console.log('Profile Data:', window.userProfileService?.profileData);
+    
+    // Test form pre-filling
+    const forms = document.querySelectorAll('form');
+    console.log('Found forms:', forms.length);
+    forms.forEach((form, index) => {
+        console.log(`Form ${index}:`, form.id || 'no-id');
+        prefillFormWithUserData(form);
+    });
+    
+    // Test individual field pre-filling
+    prefillIndividualFields();
+    console.log('Pre-fill test completed');
+}
+
+// Make testPrefill available globally
+window.testPrefill = testPrefill;

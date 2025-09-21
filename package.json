@@ -1,19 +1,35 @@
 {
-  "name": "roadrescue_web2.0",
+  "name": "roadrescue360",
   "version": "1.0.0",
-  "description": "RoadRescue360 Web Application",
-  "main": "index.js",
+  "description": "RoadRescue360 - Emergency Roadside Assistance Platform",
+  "main": "backend/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "cd backend && npm start",
+    "dev": "cd backend && npm run dev",
+    "build": "cd backend && npm install",
+    "test": "cd backend && npm test",
+    "install-backend": "cd backend && npm install",
+    "install-frontend": "cd frontend && npm install || echo 'Frontend uses static files'"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Aditya-oss-glitch/roadrescue360_web.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
+  "keywords": [
+    "roadside-assistance",
+    "emergency-services",
+    "technician-booking",
+    "vehicle-repair",
+    "nodejs",
+    "express",
+    "mongodb"
+  ],
+  "author": "RoadRescue360 Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
   "bugs": {
     "url": "https://github.com/Aditya-oss-glitch/roadrescue360_web/issues"
   },

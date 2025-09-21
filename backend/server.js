@@ -21,8 +21,16 @@ const io = socketIO(server, {
 });
 
 // Middleware
-app.use(cors());
-app.use(express.json());
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://roadrescue360-frontend.onrender.com', 'https://roadrescue360.onrender.com']
+    : ['http://localhost:8080', 'http://localhost:3000', 'http://127.0.0.1:8080'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // ✅ Serve static files from the frontend directory
 app.use(express.static(path.join(__dirname, "../frontend")));
@@ -34,16 +42,34 @@ if (!fs.existsSync(uploadsDir)) {
 app.use("/uploads", express.static(uploadsDir));
 
 // MongoDB Connection
+const mongoURI = process.env.MONGODB_URI || "mongodb://localhost:27017/roadrescue360";
+
 mongoose
-  .connect(
-    process.env.MONGODB_URI || "mongodb://localhost:27017/roadrescue360",
-    {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    }
-  )
-  .then(() => console.log("Connected to MongoDB"))
-  .catch((err) => console.error("MongoDB connection error:", err));
+  .connect(mongoURI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
+    socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
+    bufferMaxEntries: 0, // Disable mongoose buffering
+    bufferCommands: false, // Disable mongoose buffering
+  })
+  .then(() => {
+    console.log("✅ Connected to MongoDB");
+    console.log(`Database: ${mongoose.connection.db.databaseName}`);
+  })
+  .catch((err) => {
+    console.error("❌ MongoDB connection error:", err);
+    process.exit(1); // Exit process if MongoDB connection fails
+  });
+
+// Handle MongoDB connection events
+mongoose.connection.on('disconnected', () => {
+  console.log('⚠️ MongoDB disconnected');
+});
+
+mongoose.connection.on('error', (err) => {
+  console.error('❌ MongoDB error:', err);
+});
 
 // Socket.IO Connection Handling
 io.on("connection", (socket) => {
@@ -80,7 +106,18 @@ io.on("connection", (socket) => {
   });
 });
 
-// Routes
+// Health check endpoint for Render
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || 'development',
+    database: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected'
+  });
+});
+
+// API Routes
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/users", require("./routes/users"));
 app.use("/api/services", require("./routes/services"));
@@ -88,6 +125,8 @@ app.use("/api/payments", require("./routes/payments"));
 app.use("/api/tracking", require("./routes/tracking"));
 app.use("/api/md", require("./routes/md"));
 app.use("/api/emergency", require("./routes/emergency"));
+app.use("/api/pricing", require("./routes/pricing"));
+app.use("/api/technicians", require("./routes/technicians"));
 
 // ✅ Serve frontend (HTML/JS/CSS) for non-API routes
 app.get("*", (req, res) => {
@@ -110,6 +149,10 @@ app.use((err, req, res, next) => {
 
 // Start server
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`Server running on http://0.0.0.0:${PORT}`);
+const HOST = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
+
+server.listen(PORT, HOST, () => {
+  console.log(`Server running on http://${HOST}:${PORT}`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`MongoDB URI: ${process.env.MONGODB_URI ? 'Connected' : 'Not configured'}`);
 });

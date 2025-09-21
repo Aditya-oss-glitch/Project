@@ -163,6 +163,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 statusBadge.textContent = 'Service in progress';
                 statusBadge.className = 'status-badge success';
                 
+                // Simulate service completion after some time
+                setTimeout(() => {
+                    completeService();
+                }, 30000); // 30 seconds for demo
+                
                 return;
             }
             
@@ -236,10 +241,32 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 12000); // Change status message every 12 seconds
     }
 
+    // Pre-fill tracking form with user data
+    function prefillTrackingForm() {
+        if (window.userProfileService && window.userProfileService.isLoggedIn() && window.userProfileService.profileData) {
+            const profile = window.userProfileService.profileData;
+            
+            // Pre-fill phone number
+            const phoneField = document.getElementById('customer-phone');
+            if (phoneField && profile.phone && !phoneField.value) {
+                phoneField.value = profile.phone;
+            }
+            
+            // Pre-fill vehicle details
+            const vehicleField = document.getElementById('vehicle-details');
+            if (vehicleField && profile.vehicleDetails && !vehicleField.value) {
+                vehicleField.value = profile.vehicleDetails;
+            }
+        }
+    }
+
     // Handle form submission
     const trackingForm = document.getElementById('service-request-form');
     
     if (trackingForm) {
+        // Pre-fill form when it loads
+        prefillTrackingForm();
+        
         trackingForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -288,50 +315,72 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('Error calculating distance, using default');
             }
             
-            // Simulate API call - shorter delay
-            setTimeout(() => {
-                // First show payment breakdown
-                if (typeof window.showPaymentBreakdown === 'function') {
-                    // Show payment breakdown first
-                    window.showPaymentBreakdown(serviceType, distance);
-                    
-                    // Add event listener to the payment form
-                    const paymentForm = document.getElementById('payment-form');
-                    if (paymentForm) {
-                        paymentForm.onsubmit = function(e) {
-                            e.preventDefault();
-                            const paymentSubmitBtn = paymentForm.querySelector('.submit-button');
-                            paymentSubmitBtn.classList.add('loading');
-                            paymentSubmitBtn.disabled = true;
-                            
-                            // Process payment and proceed to tracking
-                            setTimeout(() => {
-                                // Hide payment modal
-                                const modal = document.querySelector('.payment-modal');
-                                if (modal) modal.style.display = 'none';
-                                
-                                // Proceed with service request
-                                completeServiceRequest(userLat, userLng);
-                                
-                                // Reset payment form
-                                paymentSubmitBtn.classList.remove('loading');
-                                paymentSubmitBtn.disabled = false;
-                                paymentForm.reset();
-                            }, 1500);
-                        };
-                    }
+            // Get current location dynamically
+            let locationData = null;
+            try {
+                if (window.locationService) {
+                    const currentLocation = await window.locationService.getCurrentLocation();
+                    locationData = window.locationService.formatLocationForAPI(currentLocation);
                 } else {
-                    // Fallback if payment function not available
-                    completeServiceRequest(userLat, userLng);
+                    // Fallback to coordinates from form
+                    locationData = {
+                        type: "Point",
+                        coordinates: [userLng, userLat] // Note: MongoDB expects [longitude, latitude]
+                    };
                 }
+            } catch (error) {
+                console.warn('Could not get current location, using form coordinates:', error);
+                locationData = {
+                    type: "Point",
+                    coordinates: [userLng, userLat]
+                };
+            }
+
+            // Get user profile data
+            const userProfile = window.userProfileService?.profileData || {};
+            
+            // Create service request via API
+            const serviceData = {
+                type: serviceType,
+                contactName: userProfile.name || 'Customer',
+                contactPhone: userProfile.phone || phoneNumber,
+                address: location,
+                vehicleDetails: vehicleDetails,
+                description: `Service request for ${serviceType}`,
+                location: locationData,
+                userId: userProfile.id || null
+            };
+
+            // Call API to create service
+            API.createService(serviceData).then(service => {
+                // Service created successfully
+                completeServiceRequest(userLat, userLng, service);
                 
-                // Reset button state on service request form
+                // Reset button state
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="fas fa-search"></i> Find Nearest Technician';
-            }, 800);
+            }).catch(error => {
+                console.error('Error creating service:', error);
+                
+                // Show error message
+                const errorMsg = document.createElement('div');
+                errorMsg.className = 'error-message';
+                errorMsg.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${error.message}`;
+                document.body.appendChild(errorMsg);
+                
+                setTimeout(() => {
+                    if (document.body.contains(errorMsg)) {
+                        document.body.removeChild(errorMsg);
+                    }
+                }, 5000);
+                
+                // Reset button state
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-search"></i> Find Nearest Technician';
+            });
             
             // Function to complete service request after payment
-            function completeServiceRequest(lat, lng) {
+            function completeServiceRequest(lat, lng, service = null) {
                 isServiceActive = true;
                 
                 // Switch to tracking tab
@@ -339,18 +388,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (technicianTab) {
                     technicianTab.click();
                     
-                    // Update technician info with random names for realism
-                    const technicianNames = [
-                        'John Smith',
-                        'Maria Rodriguez',
-                        'David Johnson',
-                        'Sarah Williams',
-                        'Michael Brown',
-                        'Jessica Davis'
-                    ];
-                    const randomName = technicianNames[Math.floor(Math.random() * technicianNames.length)];
-                    
-                    document.getElementById('technician-name').textContent = randomName;
+                    // Update technician info with dynamic data
+                    if (window.technicianService && service && service.assignedTechnician) {
+                        window.technicianService.getTechnicianData(service.assignedTechnician).then(technician => {
+                            window.technicianService.updateTechnicianDisplay(technician);
+                        });
+                    } else {
+                        // Fallback to random technician name
+                        const randomName = window.technicianService ? 
+                            window.technicianService.getRandomTechnicianName() : 
+                            'Technician';
+                        document.getElementById('technician-name').textContent = randomName;
+                    }
                     
                     // Initialize tracking map
                     initMap(lat, lng);
@@ -553,5 +602,36 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.classList.remove('selected');
             }
         });
+    }
+
+    // Complete service function
+    function completeService() {
+        const statusBadge = document.querySelector('.status-badge');
+        if (statusBadge) {
+            statusBadge.textContent = 'Service Completed';
+            statusBadge.className = 'status-badge completed';
+        }
+        
+        // Show completion message
+        const completionMsg = document.createElement('div');
+        completionMsg.className = 'success-message';
+        completionMsg.innerHTML = '<i class="fas fa-check-circle"></i> Service completed successfully!';
+        document.body.appendChild(completionMsg);
+        
+        setTimeout(() => {
+            if (document.body.contains(completionMsg)) {
+                document.body.removeChild(completionMsg);
+            }
+        }, 5000);
+        
+        // Show payment modal if service is in pending payments
+        if (window.paymentService && activeService) {
+            const serviceId = activeService._id || activeService.id;
+            if (window.paymentService.pendingPayments.has(serviceId)) {
+                const serviceData = window.paymentService.pendingPayments.get(serviceId);
+                window.paymentService.showPaymentModal(serviceId, serviceData);
+                window.paymentService.pendingPayments.delete(serviceId);
+            }
+        }
     }
 }); 

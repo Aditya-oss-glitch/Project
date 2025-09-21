@@ -4,6 +4,59 @@ const Payment = require('../models/Payment');
 const Service = require('../models/Service');
 const { auth } = require('../middleware/auth');
 
+// @route   POST /api/payments/process
+// @desc    Process a payment for a service
+// @access  Public (for testing)
+router.post('/process', async (req, res) => {
+  try {
+    const { serviceId, amount, paymentMethod, paymentDetails } = req.body;
+    
+    // Validate service exists
+    const service = await Service.findById(serviceId);
+    
+    if (!service) {
+      return res.status(404).json({ error: 'Service not found' });
+    }
+    
+    // Check if payment already exists for this service
+    const existingPayment = await Payment.findOne({ service: serviceId });
+    
+    if (existingPayment && existingPayment.status === 'completed') {
+      return res.status(400).json({ error: 'Payment already processed for this service' });
+    }
+    
+    // Create a unique transaction ID
+    const transactionId = `TXN-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    
+    // Create payment
+    const newPayment = new Payment({
+      service: serviceId,
+      user: service.user || null,
+      amount,
+      paymentMethod,
+      transactionId,
+      status: 'completed', // For demo purposes, mark as completed immediately
+      paymentDetails: paymentDetails || {}
+    });
+    
+    const payment = await newPayment.save();
+    
+    // Update service payment status
+    service.paymentStatus = 'completed';
+    service.cost = amount;
+    await service.save();
+    
+    res.status(201).json({
+      success: true,
+      payment,
+      message: 'Payment processed successfully'
+    });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // @route   POST /api/payments
 // @desc    Process a payment for a service
 // @access  Private

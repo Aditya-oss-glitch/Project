@@ -149,18 +149,27 @@
                         specialties: document.getElementById('t-specialties').value.split(',').map(s=>s.trim()).filter(Boolean),
                         vehicle: document.getElementById('t-vehicle').value.trim(),
                         licensePlate: document.getElementById('t-plate').value.trim(),
-                        latitude: 28.6275,
-                        longitude: 77.3635
+                        latitude: 0,
+                        longitude: 0
                     };
                 }
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                
                 const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error || 'Request failed');
+                
                 if (role === 'user') {
                     saveAuth('rr_user_token', data.token);
-                    window.location.href = 'index.html';
+                    // Initialize user profile service after login
+                    if (window.userProfileService) {
+                        window.userProfileService.initialize().then(() => {
+                            window.location.href = 'index.html';
+                        });
+                    } else {
+                        window.location.href = 'index.html';
+                    }
                 } else {
                     saveAuth('rr_tech_token', data.token);
                     window.location.href = 'mechanic-home.html';

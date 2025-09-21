@@ -29,6 +29,40 @@
     />
     <link rel="icon" type="image/png" href="images/favicon.png" />
     <script src="config.js"></script>
+    <script src="location-service.js"></script>
+    <script src="technician-service.js"></script>
+    <script src="pricing-service.js"></script>
+    <script src="user-profile-service.js"></script>
+    <script src="payment-service.js"></script>
+    <script>
+        // Test function to check if pre-filling is working
+        function testPrefill() {
+            console.log('Testing pre-fill...');
+            console.log('User logged in:', window.userProfileService?.isLoggedIn());
+            console.log('Profile data:', window.userProfileService?.profileData);
+            
+            // Create a test form
+            const testForm = document.createElement('form');
+            testForm.innerHTML = `
+                <input type="text" id="test-name" placeholder="Name">
+                <input type="tel" id="test-phone" placeholder="Phone">
+                <input type="email" id="test-email" placeholder="Email">
+                <input type="text" id="test-location" placeholder="Location">
+                <textarea id="test-vehicle" placeholder="Vehicle"></textarea>
+            `;
+            
+            document.body.appendChild(testForm);
+            
+            // Pre-fill it
+            if (window.prefillFormWithUserData) {
+                window.prefillFormWithUserData(testForm);
+                console.log('Pre-fill test completed');
+            }
+        }
+        
+        // Make test function available globally
+        window.testPrefill = testPrefill;
+    </script>
     <script
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg"
       defer
@@ -1018,7 +1052,7 @@
                       }
                     : {
                         type: "Point",
-                        coordinates: [77.3635, 28.6275],
+                        coordinates: [0, 0], // Will be updated with actual location
                       },
                   address: "Emergency Location",
                   contactName: "Emergency User",
@@ -1268,7 +1302,7 @@
                   getServiceTitle(currentService),
               };
 
-              const res = await fetch("/api/services", {
+              const res = await fetch(`${BASE_URL}/api/services`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),

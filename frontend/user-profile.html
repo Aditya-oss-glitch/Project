@@ -321,6 +321,30 @@
             margin-top: 5px;
         }
         
+        .btn-info {
+            background-color: #17a2b8;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+        
+        .btn-info:hover {
+            background-color: #138496;
+            transform: translateY(-2px);
+            box-shadow: var(--box-shadow);
+        }
+        
+        .btn-info:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
         .hidden {
             display: none;
         }
@@ -486,6 +510,9 @@
                     <button type="button" id="view-history-btn" class="btn btn-secondary">
                         <i class="fas fa-history"></i> Service History
                     </button>
+                    <button type="button" id="sync-profile-btn" class="btn btn-info" style="display: none;">
+                        <i class="fas fa-sync"></i> Sync with Server
+                    </button>
                     <button type="button" id="logout-btn" class="btn btn-danger">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </button>
@@ -568,6 +595,9 @@
                 return;
             }
             
+            // Initialize connection monitoring
+            monitorConnection();
+            
             // Load user profile
             loadUserProfile();
             
@@ -633,19 +663,19 @@
                 }
                 
                 try {
-                    // Try to update via API
-                    try {
-                        await window.userProfileService.updateUserProfile(profileData);
+                    // Try to update via API with automatic fallback
+                    const updatedProfile = await window.userProfileService.updateUserProfile(profileData);
+                    
+                    // Check if this was saved locally due to API error
+                    if (updatedProfile.isOffline) {
+                        showMessage('Profile saved locally! Changes will sync when connection is restored.', 'success');
+                        showOfflineIndicator();
+                    } else {
                         showMessage('Profile updated successfully!', 'success');
-                    } catch (apiError) {
-                        // If API fails, save to localStorage
-                        console.log('API not available, saving to localStorage');
-                        localStorage.setItem('user_profile_data', JSON.stringify(profileData));
-                        showMessage('Profile saved locally! (API not available)', 'success');
                     }
                     
                     // Update the display with new data
-                    updateProfileDisplay(profileData);
+                    updateProfileDisplay(updatedProfile);
                     
                 } catch (error) {
                     showMessage('Failed to update profile. Please try again.', 'error');
@@ -656,6 +686,11 @@
             // Service History functionality
             document.getElementById('view-history-btn').addEventListener('click', function() {
                 showServiceHistory();
+            });
+            
+            // Sync Profile functionality
+            document.getElementById('sync-profile-btn').addEventListener('click', async function() {
+                await syncProfileWithServer();
             });
             
             // Logout functionality
@@ -681,21 +716,15 @@
         
         async function loadUserProfile() {
             try {
-                // Try to get profile from API first
-                let profileData;
-                try {
-                    profileData = await window.userProfileService.getUserProfile();
-                } catch (apiError) {
-                    console.log('API not available, checking localStorage');
-                    // Check localStorage for saved data
-                    const savedData = localStorage.getItem('user_profile_data');
-                    if (savedData) {
-                        profileData = JSON.parse(savedData);
-                        console.log('Loaded profile from localStorage');
-                    } else {
-                        console.log('No saved data, using mock data');
-                        profileData = getMockProfileData();
-                    }
+                // Get profile data with automatic fallback
+                const profileData = await window.userProfileService.getUserProfile();
+                
+                // Check if this is offline/fallback data
+                const isOfflineData = profileData.isOffline === true;
+                
+                // Show offline indicator if using fallback data
+                if (isOfflineData) {
+                    showOfflineIndicator();
                 }
                 
                 // Update profile display
@@ -756,65 +785,167 @@
             document.getElementById('profile-license').textContent = profileData.licensePlate || 'No license plate';
         }
         
-        // Show service history modal
-        function showServiceHistory() {
-            const mockHistory = [
-                {
-                    id: 1,
-                    service: 'Battery Jump Start',
-                    date: '2024-01-15',
-                    status: 'Completed',
-                    technician: 'Mike Johnson',
-                    rating: 5
-                },
-                {
-                    id: 2,
-                    service: 'Tire Change',
-                    date: '2024-01-10',
-                    status: 'Completed',
-                    technician: 'Sarah Wilson',
-                    rating: 4
-                },
-                {
-                    id: 3,
-                    service: 'Fuel Delivery',
-                    date: '2024-01-05',
-                    status: 'Completed',
-                    technician: 'John Smith',
-                    rating: 5
-                }
-            ];
-            
-            const historyHTML = mockHistory.map(service => `
-                <div class="history-item">
-                    <div class="service-info">
-                        <h4>${service.service}</h4>
-                        <p>Date: ${service.date}</p>
-                        <p>Technician: ${service.technician}</p>
-                    </div>
-                    <div class="service-status">
-                        <span class="status-badge completed">${service.status}</span>
-                        <div class="rating">
-                            ${'★'.repeat(service.rating)}${'☆'.repeat(5-service.rating)}
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-            
-            const modal = document.createElement('div');
-            modal.className = 'modal';
-            modal.innerHTML = `
-                <div class="modal-content" style="max-width: 600px;">
-                    <span class="close-modal" onclick="this.parentElement.parentElement.remove()">&times;</span>
-                    <h2><i class="fas fa-history"></i> Service History</h2>
-                    <div class="history-list">
-                        ${historyHTML}
-                    </div>
+        // Show offline indicator
+        function showOfflineIndicator() {
+            const existingIndicator = document.querySelector('.offline-indicator');
+            if (existingIndicator) return;
+
+            const indicator = document.createElement('div');
+            indicator.className = 'offline-indicator';
+            indicator.innerHTML = `
+                <div style="
+                    position: fixed;
+                    top: 80px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: #fff3cd;
+                    color: #856404;
+                    padding: 10px 20px;
+                    border-radius: 5px;
+                    border: 1px solid #ffeaa7;
+                    z-index: 1000;
+                    font-size: 0.9rem;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                ">
+                    <i class="fas fa-wifi" style="margin-right: 8px;"></i>
+                    You're offline - showing saved data. Changes will sync when connection is restored.
                 </div>
             `;
+            document.body.appendChild(indicator);
+
+            // Show sync button
+            document.getElementById('sync-profile-btn').style.display = 'inline-block';
+
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                if (indicator.parentNode) {
+                    indicator.remove();
+                }
+            }, 5000);
+        }
+
+        // Sync profile with server
+        async function syncProfileWithServer() {
+            const syncBtn = document.getElementById('sync-profile-btn');
+            const originalText = syncBtn.innerHTML;
             
-            document.body.appendChild(modal);
-            modal.style.display = 'flex';
+            try {
+                syncBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Syncing...';
+                syncBtn.disabled = true;
+                
+                // Get current profile data from form
+                const profileData = {
+                    name: document.getElementById('profile-name-input').value,
+                    phone: document.getElementById('profile-phone-input').value,
+                    email: document.getElementById('profile-email-input').value,
+                    address: document.getElementById('profile-address-input').value,
+                    vehicleDetails: document.getElementById('profile-vehicle-input').value,
+                    licensePlate: document.getElementById('profile-license-input').value,
+                    notes: document.getElementById('profile-notes-input').value
+                };
+                
+                // Try to sync with server
+                const updatedProfile = await window.userProfileService.updateUserProfile(profileData);
+                
+                if (updatedProfile.isOffline) {
+                    showMessage('Still offline. Profile saved locally.', 'error');
+                } else {
+                    showMessage('Profile synced with server successfully!', 'success');
+                    syncBtn.style.display = 'none';
+                }
+                
+            } catch (error) {
+                console.error('Sync error:', error);
+                showMessage('Failed to sync with server. Please try again.', 'error');
+            } finally {
+                syncBtn.innerHTML = originalText;
+                syncBtn.disabled = false;
+            }
+        }
+
+        // Monitor connection status
+        function monitorConnection() {
+            window.addEventListener('online', function() {
+                console.log('Connection restored');
+                showMessage('Connection restored! You can now sync your profile.', 'success');
+                document.getElementById('sync-profile-btn').style.display = 'inline-block';
+            });
+            
+            window.addEventListener('offline', function() {
+                console.log('Connection lost');
+                showMessage('Connection lost. Changes will be saved locally.', 'error');
+            });
+        }
+
+        // Show service history modal with API integration
+        async function showServiceHistory() {
+            try {
+                // Show loading state
+                const modal = document.createElement('div');
+                modal.className = 'modal';
+                modal.innerHTML = `
+                    <div class="modal-content" style="max-width: 600px;">
+                        <span class="close-modal" onclick="this.parentElement.parentElement.remove()">&times;</span>
+                        <h2><i class="fas fa-history"></i> Service History</h2>
+                        <div class="loading" style="text-align: center; padding: 20px;">
+                            <i class="fas fa-spinner fa-spin"></i> Loading service history...
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+                modal.style.display = 'flex';
+
+                // Get service history from API with fallback
+                const serviceHistory = await window.userProfileService.getServiceHistory();
+                
+                // Update modal with service history
+                const historyHTML = serviceHistory.map(service => `
+                    <div class="history-item">
+                        <div class="service-info">
+                            <h4>${service.service}</h4>
+                            <p>Date: ${service.date}</p>
+                            <p>Technician: ${service.technician}</p>
+                            ${service.location ? `<p>Location: ${service.location}</p>` : ''}
+                            ${service.cost ? `<p>Cost: ${service.cost}</p>` : ''}
+                        </div>
+                        <div class="service-status">
+                            <span class="status-badge completed">${service.status}</span>
+                            <div class="rating">
+                                ${'★'.repeat(service.rating)}${'☆'.repeat(5-service.rating)}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+                // Update the modal content
+                modal.innerHTML = `
+                    <div class="modal-content" style="max-width: 600px;">
+                        <span class="close-modal" onclick="this.parentElement.parentElement.remove()">&times;</span>
+                        <h2><i class="fas fa-history"></i> Service History</h2>
+                        <div class="history-list">
+                            ${historyHTML}
+                        </div>
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('Error loading service history:', error);
+                
+                // Show error state
+                modal.innerHTML = `
+                    <div class="modal-content" style="max-width: 600px;">
+                        <span class="close-modal" onclick="this.parentElement.parentElement.remove()">&times;</span>
+                        <h2><i class="fas fa-history"></i> Service History</h2>
+                        <div style="text-align: center; padding: 20px; color: #dc3545;">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                            <p>Unable to load service history. Please check your connection and try again.</p>
+                            <button onclick="showServiceHistory()" class="btn btn-primary" style="margin-top: 10px;">
+                                <i class="fas fa-refresh"></i> Try Again
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
         }
         
         function showMessage(message, type) {

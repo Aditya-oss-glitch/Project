@@ -3,8 +3,8 @@ services:
     name: roadrescue360-backend
     env: node
     plan: free
-    buildCommand: npm run build
-    startCommand: npm start
+    buildCommand: cd backend && npm install --production --ignore-optional
+    startCommand: cd backend && node server.js
     envVars:
       - key: NODE_ENV
         value: production

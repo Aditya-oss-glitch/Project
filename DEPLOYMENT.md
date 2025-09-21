@@ -1,5 +1,16 @@
 # Road Rescue 360 - Deployment Guide
 
+## 🍎 macOS Setup
+
+### Quick Setup
+```bash
+# Install Node.js via Homebrew
+brew install node
+
+# Install dependencies
+cd backend && npm install
+```
+
 ## 🚀 Render Deployment
 
 ### Backend Deployment
@@ -67,20 +78,16 @@ python -m http.server 8000
 ### Common Issues:
 
 1. **"Cannot find module 'express'"**
-   - Solution: Ensure `npm run build` installs dependencies in backend folder
-   - Check that package.json has correct scripts
+   - Solution: Run `cd backend && npm install`
 
-2. **CORS Errors**
+2. **"fsevents platform error"**
+   - Solution: Use `--ignore-optional` flag (already configured)
+
+3. **CORS Errors**
    - Solution: Backend CORS is configured for all origins
-   - Check that frontend is using correct API URL
 
-3. **Database Connection Issues**
-   - Solution: Ensure MONGODB_URI is set correctly
-   - Check that database is created and accessible
-
-4. **Port Issues**
-   - Solution: Render automatically assigns PORT environment variable
-   - Backend uses `process.env.PORT || 3000`
+4. **Database Connection Issues**
+   - Solution: Ensure MONGODB_URI is set correctly in Render
 
 ## 🎯 Deployment Checklist
 

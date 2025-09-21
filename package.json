@@ -5,10 +5,7 @@
   "main": "backend/server.js",
   "scripts": {
     "start": "cd backend && node server.js",
-    "dev": "cd backend && nodemon server.js",
-    "install-backend": "cd backend && npm install",
-    "build": "cd backend && npm install --production",
-    "test": "cd backend && npm test"
+    "build": "cd backend && npm install --production --ignore-optional"
   },
   "keywords": [
     "road-rescue",

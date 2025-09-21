@@ -37,7 +37,7 @@ class UserProfileService {
                 return this.getFallbackProfileData();
             }
 
-            const response = await fetch(`${BASE_URL}/api/auth/user`, {
+            const response = await fetch(`${BASE_URL}/api/users/profile`, {
                 headers: {
                     'Authorization': `Bearer ${user.token}`,
                     'Content-Type': 'application/json'
@@ -92,20 +92,19 @@ class UserProfileService {
             console.warn('Error parsing saved profile data:', error);
         }
 
-        // If no saved data, return mock data
-        console.log('Using mock profile data');
+        // If no saved data, return empty profile data
+        console.log('Using empty profile data');
         return {
-            name: 'John Doe',
-            email: 'john.doe@example.com',
-            phone: '+1 (555) 123-4567',
-            address: '123 Main Street, City, State 12345',
-            vehicleDetails: '2020 Honda Civic - Silver',
-            licensePlate: 'ABC-1234',
-            notes: 'Preferred contact time: Weekdays 9 AM - 5 PM',
-            totalServices: 12,
-            memberSince: '2024',
-            avatarUrl: null,
-            isOffline: true // Flag to indicate this is fallback data
+            name: '',
+            email: '',
+            phone: '',
+            address: '',
+            vehicleDetails: '',
+            licensePlate: '',
+            notes: '',
+            totalServices: 0,
+            memberSince: new Date().getFullYear(),
+            avatarUrl: null
         };
     }
 
@@ -170,8 +169,7 @@ class UserProfileService {
         try {
             const profileWithTimestamp = {
                 ...profileData,
-                lastUpdated: new Date().toISOString(),
-                isOffline: true
+                lastUpdated: new Date().toISOString()
             };
             
             localStorage.setItem('user_profile_data', JSON.stringify(profileWithTimestamp));

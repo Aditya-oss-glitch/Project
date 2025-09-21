@@ -364,23 +364,32 @@
             display: none;
         }
         
-        .success-message {
-            background-color: #d4edda;
-            color: #155724;
-            padding: 15px;
+        .success-message, .error-message {
+            position: fixed;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 30px;
             border-radius: 5px;
-            margin-bottom: 20px;
+            z-index: 1000;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            font-weight: 500;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
             border: 1px solid #c3e6cb;
         }
         
         .error-message {
-            background-color: #f8d7da;
+            background: #f8d7da;
             color: #721c24;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
             border: 1px solid #f5c6cb;
         }
+        
         
         @media (max-width: 768px) {
             .profile-form {
@@ -462,12 +471,12 @@
                         <input type="file" id="avatar-input" accept="image/*" class="hidden">
                     </div>
                 <div class="profile-info">
-                    <h2 id="profile-name">Loading...</h2>
-                    <p id="profile-email">Loading...</p>
-                    <p id="profile-phone">Loading...</p>
-                    <p id="profile-address">Loading...</p>
-                    <p id="profile-vehicle">Loading...</p>
-                    <p id="profile-license">Loading...</p>
+                    <h2 id="profile-name">User</h2>
+                    <p id="profile-email">No email</p>
+                    <p id="profile-phone">No phone</p>
+                    <p id="profile-address">No address</p>
+                    <p id="profile-vehicle">No vehicle details</p>
+                    <p id="profile-license">No license plate</p>
                     <div class="profile-stats">
                         <div class="stat-item">
                             <span class="stat-number" id="total-services">0</span>
@@ -647,7 +656,11 @@
             }
             
             // Save profile functionality
-            document.getElementById('save-profile').addEventListener('click', async function() {
+            document.getElementById('save-profile').addEventListener('click', async function(e) {
+                e.preventDefault();
+                console.log('Save button clicked');
+                alert('Save button clicked! Check console for details.');
+                
                 const profileData = {
                     name: document.getElementById('profile-name-input').value,
                     phone: document.getElementById('profile-phone-input').value,
@@ -657,6 +670,19 @@
                     licensePlate: document.getElementById('profile-license-input').value,
                     notes: document.getElementById('profile-notes-input').value
                 };
+                
+                console.log('Profile data to save:', profileData);
+                
+                // Check if form fields exist
+                const nameField = document.getElementById('profile-name-input');
+                const emailField = document.getElementById('profile-email-input');
+                const phoneField = document.getElementById('profile-phone-input');
+                
+                if (!nameField || !emailField || !phoneField) {
+                    console.error('Form fields not found!');
+                    showMessage('Form fields not found. Please refresh the page.', 'error');
+                    return;
+                }
                 
                 // Validate required fields
                 if (!profileData.name || !profileData.email || !profileData.phone) {
@@ -672,24 +698,66 @@
                 }
                 
                 try {
-                    // Try to update via API with automatic fallback
-                    const updatedProfile = await window.userProfileService.updateUserProfile(profileData);
+                    console.log('Attempting to save profile...');
                     
-                    // Check if this was saved locally due to API error
-                    if (updatedProfile.isOffline) {
-                        showMessage('Profile saved locally! Changes will sync when connection is restored.', 'success');
-                        showOfflineIndicator();
-                    } else {
-                        showMessage('Profile updated successfully!', 'success');
+                    // Get current user
+                    const user = window.userProfileService.getCurrentUser();
+                    if (!user) {
+                        showMessage('Please log in to save your profile.', 'error');
+                        return;
                     }
                     
-                    // Update the display with new data
-                    updateProfileDisplay(updatedProfile);
+                    // Try API first
+                    try {
+                        const response = await fetch(`${BASE_URL}/api/users/profile`, {
+                            method: 'PUT',
+                            headers: {
+                                'Authorization': `Bearer ${user.token}`,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(profileData)
+                        });
+                        
+                        if (response.ok) {
+                            const updatedProfile = await response.json();
+                            console.log('Profile updated via API:', updatedProfile);
+                            
+                            // Save to localStorage as backup
+                            localStorage.setItem('user_profile_data', JSON.stringify(updatedProfile));
+                            
+                            // Update display
+                            updateProfileDisplay(updatedProfile);
+                            showMessage('Profile updated successfully!', 'success');
+                            return;
+                        }
+                    } catch (apiError) {
+                        console.log('API failed, saving locally:', apiError);
+                    }
+                    
+                    // Fallback to localStorage
+                    const profileWithTimestamp = {
+                        ...profileData,
+                        lastUpdated: new Date().toISOString()
+                    };
+                    
+                    localStorage.setItem('user_profile_data', JSON.stringify(profileWithTimestamp));
+                    console.log('Profile saved locally:', profileWithTimestamp);
+                    
+                    // Update display
+                    updateProfileDisplay(profileWithTimestamp);
+                    showMessage('Profile saved locally!', 'success');
                     
                 } catch (error) {
-                    showMessage('Failed to update profile. Please try again.', 'error');
                     console.error('Profile update error:', error);
+                    showMessage('Failed to update profile: ' + error.message, 'error');
                 }
+            });
+            
+            // Form submit event listener (backup)
+            document.getElementById('profile-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                console.log('Form submitted');
+                document.getElementById('save-profile').click();
             });
             
             // Service History functionality
@@ -721,37 +789,44 @@
         
         async function loadUserProfile() {
             try {
-                // Get profile data with automatic fallback
-                const profileData = await window.userProfileService.getUserProfile();
+                console.log('Loading user profile...');
                 
-                // Check if this is offline/fallback data
-                const isOfflineData = profileData.isOffline === true;
-                
-                // Show offline indicator if using fallback data
-                if (isOfflineData) {
-                    showOfflineIndicator();
+                // Check if user is logged in
+                const user = window.userProfileService.getCurrentUser();
+                if (!user) {
+                    console.log('No user logged in, redirecting to login');
+                    window.location.href = 'login.html';
+                    return;
                 }
                 
+                console.log('User found:', user);
+                
+                // Get profile data with automatic fallback
+                const profileData = await window.userProfileService.getUserProfile();
+                console.log('Profile data loaded:', profileData);
+                
+                // Profile data loaded successfully
+                
                 // Update profile display
-                document.getElementById('profile-name').textContent = profileData.name || 'John Doe';
-                document.getElementById('profile-email').textContent = profileData.email || 'john.doe@example.com';
-                document.getElementById('profile-phone').textContent = profileData.phone || '+1 (555) 123-4567';
-                document.getElementById('profile-address').textContent = profileData.address || '123 Main Street, City, State 12345';
-                document.getElementById('profile-vehicle').textContent = profileData.vehicleDetails || '2020 Honda Civic - Silver';
-                document.getElementById('profile-license').textContent = profileData.licensePlate || 'ABC-1234';
+                document.getElementById('profile-name').textContent = profileData.name || 'User';
+                document.getElementById('profile-email').textContent = profileData.email || 'No email';
+                document.getElementById('profile-phone').textContent = profileData.phone || 'No phone';
+                document.getElementById('profile-address').textContent = profileData.address || 'No address';
+                document.getElementById('profile-vehicle').textContent = profileData.vehicleDetails || 'No vehicle details';
+                document.getElementById('profile-license').textContent = profileData.licensePlate || 'No license plate';
                 
                 // Update stats
-                document.getElementById('total-services').textContent = profileData.totalServices || '12';
-                document.getElementById('member-since').textContent = profileData.memberSince || '2024';
+                document.getElementById('total-services').textContent = profileData.totalServices || '0';
+                document.getElementById('member-since').textContent = profileData.memberSince || new Date().getFullYear();
                 
                 // Fill form fields
-                document.getElementById('profile-name-input').value = profileData.name || 'John Doe';
-                document.getElementById('profile-phone-input').value = profileData.phone || '+1 (555) 123-4567';
-                document.getElementById('profile-email-input').value = profileData.email || 'john.doe@example.com';
-                document.getElementById('profile-address-input').value = profileData.address || '123 Main Street, City, State 12345';
-                document.getElementById('profile-vehicle-input').value = profileData.vehicleDetails || '2020 Honda Civic - Silver';
-                document.getElementById('profile-license-input').value = profileData.licensePlate || 'ABC-1234';
-                document.getElementById('profile-notes-input').value = profileData.notes || 'Preferred contact time: Weekdays 9 AM - 5 PM';
+                document.getElementById('profile-name-input').value = profileData.name || '';
+                document.getElementById('profile-phone-input').value = profileData.phone || '';
+                document.getElementById('profile-email-input').value = profileData.email || '';
+                document.getElementById('profile-address-input').value = profileData.address || '';
+                document.getElementById('profile-vehicle-input').value = profileData.vehicleDetails || '';
+                document.getElementById('profile-license-input').value = profileData.licensePlate || '';
+                document.getElementById('profile-notes-input').value = profileData.notes || '';
                 
                 // Update avatar if available
                 if (profileData.avatarUrl) {
@@ -782,52 +857,24 @@
         
         // Update profile display with new data
         function updateProfileDisplay(profileData) {
+            console.log('Updating profile display with:', profileData);
+            
             document.getElementById('profile-name').textContent = profileData.name || 'User';
             document.getElementById('profile-email').textContent = profileData.email || 'No email';
             document.getElementById('profile-phone').textContent = profileData.phone || 'No phone';
             document.getElementById('profile-address').textContent = profileData.address || 'No address';
-            document.getElementById('profile-vehicle').textContent = profileData.vehicleDetails || 'No vehicle';
+            document.getElementById('profile-vehicle').textContent = profileData.vehicleDetails || 'No vehicle details';
             document.getElementById('profile-license').textContent = profileData.licensePlate || 'No license plate';
+            
+            // Update stats if available
+            if (profileData.totalServices !== undefined) {
+                document.getElementById('total-services').textContent = profileData.totalServices;
+            }
+            if (profileData.memberSince !== undefined) {
+                document.getElementById('member-since').textContent = profileData.memberSince;
+            }
         }
         
-        // Show offline indicator
-        function showOfflineIndicator() {
-            const existingIndicator = document.querySelector('.offline-indicator');
-            if (existingIndicator) return;
-
-            const indicator = document.createElement('div');
-            indicator.className = 'offline-indicator';
-            indicator.innerHTML = `
-                <div style="
-                    position: fixed;
-                    top: 80px;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    background: #fff3cd;
-                    color: #856404;
-                    padding: 10px 20px;
-                    border-radius: 5px;
-                    border: 1px solid #ffeaa7;
-                    z-index: 1000;
-                    font-size: 0.9rem;
-                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                ">
-                    <i class="fas fa-wifi" style="margin-right: 8px;"></i>
-                    You're offline - showing saved data. Changes will sync when connection is restored.
-                </div>
-            `;
-            document.body.appendChild(indicator);
-
-            // Show sync button
-            document.getElementById('sync-profile-btn').style.display = 'inline-block';
-
-            // Auto-hide after 5 seconds
-            setTimeout(() => {
-                if (indicator.parentNode) {
-                    indicator.remove();
-                }
-            }, 5000);
-        }
 
 
         // Show service history modal with actual booked services

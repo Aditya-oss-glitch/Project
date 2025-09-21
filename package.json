@@ -1,40 +1,30 @@
 {
   "name": "roadrescue360",
   "version": "1.0.0",
-  "description": "RoadRescue360 - Emergency Roadside Assistance Platform",
+  "description": "Road Rescue 360 - Emergency Vehicle Services Platform",
   "main": "backend/server.js",
   "scripts": {
-    "start": "cd backend && npm start",
-    "dev": "cd backend && npm run dev",
-    "build": "cd backend && npm install",
-    "test": "cd backend && npm test",
+    "start": "cd backend && node server.js",
+    "dev": "cd backend && nodemon server.js",
     "install-backend": "cd backend && npm install",
-    "install-frontend": "cd frontend && npm install || echo 'Frontend uses static files'"
+    "build": "cd backend && npm install --production",
+    "test": "cd backend && npm test"
+  },
+  "keywords": [
+    "road-rescue",
+    "emergency-services",
+    "vehicle-assistance",
+    "mechanic",
+    "towing"
+  ],
+  "author": "Road Rescue 360 Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Aditya-oss-glitch/roadrescue360_web.git"
-  },
-  "keywords": [
-    "roadside-assistance",
-    "emergency-services",
-    "technician-booking",
-    "vehicle-repair",
-    "nodejs",
-    "express",
-    "mongodb"
-  ],
-  "author": "RoadRescue360 Team",
-  "license": "MIT",
-  "engines": {
-    "node": ">=16.0.0",
-    "npm": ">=8.0.0"
-  },
-  "bugs": {
-    "url": "https://github.com/Aditya-oss-glitch/roadrescue360_web/issues"
-  },
-  "homepage": "https://github.com/Aditya-oss-glitch/roadrescue360_web#readme",
-  "dependencies": {
-    "mongodb": "^6.20.0"
+    "url": "https://github.com/yourusername/roadrescue360.git"
   }
 }

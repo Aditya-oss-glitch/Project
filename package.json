@@ -33,5 +33,8 @@
   "bugs": {
     "url": "https://github.com/Aditya-oss-glitch/roadrescue360_web/issues"
   },
-  "homepage": "https://github.com/Aditya-oss-glitch/roadrescue360_web#readme"
+  "homepage": "https://github.com/Aditya-oss-glitch/roadrescue360_web#readme",
+  "dependencies": {
+    "mongodb": "^6.20.0"
+  }
 }

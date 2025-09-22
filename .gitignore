@@ -109,6 +109,11 @@ backend/uploads/
 *.bak
 *.backup
 
-# Test files
-test-results/
-coverage/
+# Android/Capacitor
+android/app/build/
+android/.gradle/
+android/local.properties
+android/app/release/
+
+# Capacitor
+.capacitor/

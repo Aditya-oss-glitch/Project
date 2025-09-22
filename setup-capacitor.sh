@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# Road Rescue 360 - Capacitor Setup Script
+echo "📱 Setting up Capacitor for Road Rescue 360..."
+
+# Check if Node.js is installed
+if ! command -v node &> /dev/null; then
+    echo "❌ Node.js is not installed. Please install Node.js first:"
+    echo "   brew install node"
+    exit 1
+fi
+
+# Check if npm is available
+if ! command -v npm &> /dev/null; then
+    echo "❌ npm is not available. Please install Node.js with npm."
+    exit 1
+fi
+
+echo "✅ Node.js version: $(node --version)"
+echo "✅ npm version: $(npm --version)"
+
+# Install Capacitor CLI globally
+echo "📦 Installing Capacitor CLI..."
+npm install -g @capacitor/cli
+
+# Install Capacitor dependencies
+echo "📦 Installing Capacitor dependencies..."
+npm install @capacitor/core @capacitor/android @capacitor/cli
+
+# Initialize Capacitor (if not already done)
+if [ ! -d "android" ]; then
+    echo "🚀 Initializing Capacitor..."
+    npx cap init "RoadRescue360" "com.roadrescue360.app" --web-dir=frontend
+    
+    echo "📱 Adding Android platform..."
+    npx cap add android
+else
+    echo "✅ Capacitor already initialized"
+fi
+
+# Sync with Android
+echo "🔄 Syncing with Android..."
+npx cap sync android
+
+echo "🎉 Capacitor setup complete!"
+echo ""
+echo "📝 Next steps:"
+echo "   1. Open Android Studio:"
+echo "      npx cap open android"
+echo "   2. Build APK in Android Studio:"
+echo "      Build → Build Bundle(s) / APK(s) → Build APK(s)"
+echo ""
+echo "🌐 Your website hosting on Render remains unchanged!"

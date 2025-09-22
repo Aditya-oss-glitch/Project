@@ -23,7 +23,7 @@ const io = socketIO(server, {
 // Middleware
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? [ 'https://roadrescue-360-j5sj.onrender.com','https://roadrescue-360.onrender.com']
+    ? [ 'https://roadrescue-360.onrender.com']
     : ['http://localhost:8080', 'http://localhost:3000', 'http://127.0.0.1:8080'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],

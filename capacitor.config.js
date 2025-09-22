@@ -3,7 +3,7 @@ const config = {
   appName: 'RoadRescue360',
   webDir: 'frontend', // keep for fallback if you still bundle builds
   server: {
-    url: 'https://roadrescue-360-j5sj.onrender.com', // 👈 put your Render frontend link here
+    url:  'https://roadrescue-360.onrender.com',// 👈 put your Render frontend link here
     cleartext: false,
     androidScheme: 'https'
   },

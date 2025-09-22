@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Road Rescue 360 - Capacitor Setup Script
-echo "📱 Setting up Capacitor for Road Rescue 360..."
+# Road Rescue 360 - Simple Capacitor Setup (No TypeScript)
+echo "📱 Setting up Capacitor for Road Rescue 360 (Simple Version)..."
 
 # Check if Node.js is installed
 if ! command -v node &> /dev/null; then
@@ -10,14 +10,7 @@ if ! command -v node &> /dev/null; then
     exit 1
 fi
 
-# Check if npm is available
-if ! command -v npm &> /dev/null; then
-    echo "❌ npm is not available. Please install Node.js with npm."
-    exit 1
-fi
-
 echo "✅ Node.js version: $(node --version)"
-echo "✅ npm version: $(npm --version)"
 
 # Install Capacitor CLI globally
 echo "📦 Installing Capacitor CLI..."
@@ -25,7 +18,7 @@ npm install -g @capacitor/cli
 
 # Install Capacitor dependencies
 echo "📦 Installing Capacitor dependencies..."
-npm install @capacitor/core @capacitor/android @capacitor/cli typescript
+npm install @capacitor/core @capacitor/android @capacitor/cli
 
 # Initialize Capacitor (if not already done)
 if [ ! -d "android" ]; then

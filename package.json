@@ -14,7 +14,8 @@
     "@capacitor/android": "^5.0.0"
   },
   "devDependencies": {
-    "@capacitor/cli": "^5.0.0"
+    "@capacitor/cli": "^5.0.0",
+    "typescript": "^5.0.0"
   },
   "keywords": [
     "road-rescue",
